@@ -35,6 +35,10 @@ GDSII (Graphic Data System II, format `.gds`) is the industry-standard binary st
   * `68:20` represents `metal1` drawing layer.
   * `68:5` represents `metal1` pin label layer.
 
+![Understanding GDS Format - Overview](images/day3_l1_1.png)
+![GDS Hierarchy & Elements](images/day3_l1_2.png)
+![GDS Layer Datatype Mapping](images/day3_l1_3.png)
+
 ---
 
 ## PV_D2SK1_L2: Extraction Commands, Styles and Options In Magic
@@ -53,6 +57,12 @@ Extraction is the process of reading physical layout geometries and generating a
 * **Extraction Styles in Tech File:**
   * Defined under the `extract` section of `sky130A.tech`.
   * Allows switching between fast DRC extraction, standard SPICE extraction, or detailed RC parasitic extraction.
+
+![Magic Extraction Commands Overview](images/day3_l2_1.png)
+![Extraction Options and Switches](images/day3_l2_2.png)
+![Tech File Extraction Styles](images/day3_l2_3.png)
+![Magic Extract All Output](images/day3_l2_4.png)
+![Intermediate Ext File Structure](images/day3_l2_5.png)
 
 ---
 
@@ -79,6 +89,10 @@ Advanced extraction controls how parasitics, subcircuits, and device properties 
   * **LVS Extraction (`ext2spice lvs`):** Preserves hierarchy, disables parasitic caps/resistors, and outputs clean netlists for structural comparison.
   * **Simulation Extraction (`ext2spice`):** Flattens parasitic elements, includes parasitic ground/coupling capacitances, and formats netlist for Ngspice analysis.
 
+![Advanced Extraction Options](images/day3_l3_1.png)
+![Parasitic Threshold Settings](images/day3_l3_2.png)
+![Coupling vs Ground Capacitance Extraction](images/day3_l3_3.png)
+
 ---
 
 ## PV_D2SK1_L4: GDS Reading Option In Magic
@@ -95,6 +109,12 @@ Importing GDSII files into Magic requires mapping binary GDS layer-datatype pair
   * `gds flatglob <pattern>`: Automatically flatten subcells matching specific patterns during import.
   * `gds readonly true/false`: Read GDS subcells as read-only vendor macros (abstract views) to save memory.
   * `gds rescale true/false`: Rescale database grid if GDS grid unit differs from Magic's grid unit.
+
+![GDS Read Options](images/day3_l4_1.png)
+![CIF Input Layer Mapping](images/day3_l4_2.png)
+![GDS Subcell Readonly Controls](images/day3_l4_3.png)
+![Grid Rescaling during GDS Read](images/day3_l4_4.png)
+![Imported GDS Layer View](images/day3_l4_5.png)
 
 ---
 
@@ -114,6 +134,11 @@ Writing GDSII layout files from Magic translates internal Magic tiles into found
   * **Overlapping Polygons:** Self-intersecting polygon boundaries that violate GDSII stream specifications.
   * **Missing Subcells:** Unresolved cell references (`SRef`) when writing hierarchical layouts.
 
+![GDS Output Styles](images/day3_l5_1.png)
+![CIF Output Rules Definition](images/day3_l5_2.png)
+![GDS Off-Grid Error Identification](images/day3_l5_3.png)
+![Unconnected Labels and Polygon Issues](images/day3_l5_4.png)
+
 ---
 
 ## PV_D2SK1_L6: DRC Rules In Magic
@@ -130,6 +155,11 @@ Design Rule Checking (DRC) ensures that layout dimensions comply with foundry ma
   * `drc check`: Manually trigger DRC check over the current box region.
   * `drc why`: Displays detailed explanation of DRC violations inside the selected box.
   * `drc count`: Summarizes total number of DRC violations in the design.
+
+![DRC Rules Engine Overview](images/day3_l6_1.png)
+![Width and Spacing Rule Examples](images/day3_l6_2.png)
+![Enclosure and Extension Rules](images/day3_l6_3.png)
+![Real-Time DRC Violation Debugging](images/day3_l6_4.png)
 
 ---
 
@@ -149,6 +179,10 @@ The `extract` section of Magic's technology file defines how physical geometries
   * **Unconnected Substrates / Bulk Nodes:** Transistors with missing N-well or P-substrate tap connections.
   * **Duplicate Port Labels:** Identical signal names placed on different unconnected nets.
 
+![Extraction Rules Section in Tech File](images/day3_l7_1.png)
+![FET Device Extraction Definition](images/day3_l7_2.png)
+![Extraction Warning and Short Circuit Diagnostics](images/day3_l7_3.png)
+
 ---
 
 ## PV_D2SK1_L8: LVS Setup For Netgen
@@ -166,6 +200,12 @@ Layout vs. Schematic (LVS) compares the extracted layout topology against the or
   ```bash
   netgen -batch lvs "layout.spice" "schematic.spice" sky130A_setup.tcl lvs_comp.out
   ```
+
+![Netgen LVS Matching Architecture](images/day3_l8_1.png)
+![Netgen Setup File Configuration](images/day3_l8_2.png)
+![Pin Permutation and Subcircuit Merging](images/day3_l8_3.png)
+![Property Tolerance Setup](images/day3_l8_4.png)
+![Netgen Batch LVS Execution](images/day3_l8_5.png)
 
 ---
 
@@ -187,3 +227,5 @@ XOR Result Output (Differences)  :  [⬜⬛⬛⬜]
 * **XOR Execution Methods:**
   * **KLayout XOR:** Running automated KLayout Python/Ruby scripts (`klayout -b -r xor_script.drc`).
   * **Magic XOR Routine:** Reading both GDS files into separate Magic layers and performing `flatten` + Boolean subtraction (`paint` / `erase`).
+
+![XOR Layout Verification Flow](images/day3_l9_1.png)

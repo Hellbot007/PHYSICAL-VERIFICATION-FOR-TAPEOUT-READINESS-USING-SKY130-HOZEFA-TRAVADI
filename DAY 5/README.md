@@ -45,6 +45,11 @@ Back-End-of-Line (BEOL) rules govern metal interconnect layers (`metal1` through
   * **Multiple Vias:** High-current paths require parallel multi-via arrays to reduce electromigration (EM).
 * **Minimum Area:** Small isolated metal patches that fall below minimum area rules are prone to peeling during CMP.
 
+![Backend Metal Rules Overview](images/day5_l2_1.png)
+![Metal Width and Spacing Limits](images/day5_l2_2.png)
+![Wide Metal Spacing Tables](images/day5_l2_3.png)
+![Via Cut Enclosure & Surround Rules](images/day5_l2_4.png)
+
 ---
 
 ## PV_D3SK1_L3: Local Interconnect Rules
@@ -57,6 +62,11 @@ SkyWater SKY130 uses a Local Interconnect layer (`li` / Titanium Nitride $TiN$) 
   * `licon` connects `li` to `diff` or `poly`.
   * **Enclosure Rules:** `li` and `diff`/`poly` must enclose `licon` on at least two opposite sides.
   * Spacing rules between adjacent `licon` contacts.
+
+![Local Interconnect Layer Architecture](images/day5_l3_1.png)
+![LI Contact (licon) Specifications](images/day5_l3_2.png)
+![Licon Enclosure & Overhang Rules](images/day5_l3_3.png)
+![Local Interconnect Pitch Constraints](images/day5_l3_4.png)
 
 ---
 
@@ -77,6 +87,11 @@ Front-End-of-Line (FEOL) rules govern active device formation:
 * **ID & Boundary Layers:**
   * Standard cell boundary layers (`bound`), cell outline definitions, and area tracking layers.
 
+![Front-End Transistor Geometry Rules](images/day5_l4_1.png)
+![Poly Gate Overhang & Diffusion Extension](images/day5_l4_2.png)
+![Source-Drain Implants (nsdm/psdm)](images/day5_l4_3.png)
+![N-Well and Same-Net Spacing Rules](images/day5_l4_4.png)
+
 ---
 
 ## PV_D3SK1_L5: Deep N-Well And High Voltage Rules
@@ -91,6 +106,10 @@ Front-End-of-Line (FEOL) rules govern active device formation:
 ### High-Voltage Transistor Rules (`nfet_03v3`, `pfet_05v0`)
 * Requires thicker gate oxide layer (`thickox`).
 * Increased gate length $L_{min}$ and larger drain-to-gate spacing to withstand high electric field breakdown.
+
+![Deep N-Well Isolation Layout Rules](images/day5_l5_1.png)
+![Triple-Well Guard Ring Enclosure](images/day5_l5_2.png)
+![High-Voltage Transistor Rules (thickox)](images/day5_l5_3.png)
 
 ---
 
@@ -107,6 +126,11 @@ Design rules for passive and specialized PDK primitive devices:
   * Clearance rules to surrounding interconnects.
 * **ESD Protection & Diodes:**
   * Guard ring width and multi-contact enclosure around high-current ESD structures.
+
+![Precision Polysilicon Resistors (res_high_po)](images/day5_l6_1.png)
+![Resistor Dummy Extensions & Silicide Blocks](images/day5_l6_2.png)
+![MIM Capacitor (cap2m) Layout Rules](images/day5_l6_3.png)
+![ESD Protection & Diode Guard Ring Rules](images/day5_l6_4.png)
 
 ---
 
@@ -127,6 +151,12 @@ During plasma etching of long metal wires, accumulated charge can discharge thro
 ### 3. STI Stress Rules (Length of Diffusion - $L_{OD}$)
 Mechanical stress induced by Shallow Trench Isolation affects carrier mobility. Layout rules enforce minimum distance between transistor gate and active diffusion edge.
 
+![Latch-up Tap Spacing Rules](images/day5_l7_1.png)
+![Plasma Antenna Effect Mechanisms](images/day5_l7_2.png)
+![Antenna Ratio Calculation Formula](images/day5_l7_3.png)
+![Antenna Fixes: Metal Hopping & Diodes](images/day5_l7_4.png)
+![STI Mechanical Stress Rules (L_OD)](images/day5_l7_5.png)
+
 ---
 
 ## PV_D3SK1_L8: Density Rules
@@ -137,6 +167,11 @@ $$\text{Layer Density} = \frac{\text{Total Area of Layer Geometries in Window}}{
 
 * **Typical Range:** $30\% \le \text{Metal Density} \le 70\%$
 * **Dummy Metal Fill:** Automated scripts insert dummy floating or grounded metal tiles into sparse regions to satisfy minimum density rules without creating electrical shorts.
+
+![CMP Layer Pattern Density Concept](images/day5_l8_1.png)
+![Sliding Window Density Analysis](images/day5_l8_2.png)
+![Metal Dishing & Oxide Erosion Effects](images/day5_l8_3.png)
+![Dummy Metal Fill Insertion Rules](images/day5_l8_4.png)
 
 ---
 
@@ -156,3 +191,7 @@ ERC verifies circuit electrical integrity prior to LVS:
 * Detecting floating transistor gates.
 * Checking for shorted power domains ($V_{DD}$ to $V_{SS}$).
 * Verifying proper bulk/well bias connections.
+
+![Design For Manufacturability (DFM) Rules](images/day5_l9_1.png)
+![Lithography Compliance Checking (LCC)](images/day5_l9_2.png)
+![Electrical Rule Checking (ERC) Diagnostics](images/day5_l9_3.png)
