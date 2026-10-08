@@ -8,7 +8,7 @@
 
 ## Workshop Structure & Course Roadmap
 
-This repository documents the 10-day physical verification journey for tapeout readiness using SkyWater SKY130 PDK and open-source EDA tools (Magic, Xschem, Ngspice, Netgen, KLayout).
+This repository documents the 10-day physical verification journey for tapeout readiness using SkyWater SKY130 PDK and open-source EDA tools (Magic, Xschem, Ngspice, Netgen, KLayout, OpenLANE).
 
 ### 📚 Modules Overview
 * **Module 1 (Part 1: `PV_D1SK1`):** Introduction to SkyWater SKY130 PDK & Open-Source EDA Tools (Lectures L1 to L6) — **DAY 1**
@@ -17,8 +17,8 @@ This repository documents the 10-day physical verification journey for tapeout r
 * **Module 2 (Part 2: `PV_D2SK2`):** Labs for GDS Read/Write, Extraction, DRC, LVS and XOR Setup (Lectures L1 to L7) — **DAY 4**
 * **Module 3 (Part 1: `PV_D3SK1`):** Introduction to DRC Rules Theory (Lectures L1 to L9) — **DAY 5**
 * **Module 3 (Part 2: `PV_D3SK2`):** Labs for All DRC Rules (Lectures L1 to L11) — **DAY 6**
-* **Module 4:** *(Upcoming)* — **DAY 7 & DAY 8**
-* **Module 5:** *(Upcoming)* — **DAY 9 & DAY 10**
+* **Module 4 (`PV_D4SK1`):** Understanding PNR and Physical Verification (Lectures L1 to L6) — **DAY 7**
+* **Module 5:** *(Upcoming)* — **DAY 8, DAY 9 & DAY 10**
 
 ---
 
@@ -32,8 +32,8 @@ This repository documents the 10-day physical verification journey for tapeout r
 | **DAY 4** | **PV_D2SK2 (Lectures L1 to L7 - Labs):** Hands-on Labs for GDS Read/Write, Port/Label Creation, LEF Abstract Views, Parasitic RC Extraction Flow, DRC Debugging, Netgen LVS Matching, and Automated KLayout XOR Comparison Setup. | [View Day 4](./DAY%204/README.md) |
 | **DAY 5** | **PV_D3SK1 (Lectures L1 to L9 - Theory):** Introduction to DRC Rules: Silicon Manufacturing Constraints, Backend Metal Rules, Local Interconnect Rules, FEOL Transistor/Implants/Well Rules, Deep N-Well & High-Voltage Rules, Device Rules, Latch-up/Antenna/Stress Rules, Layer Density Limits, and DFM/ERC Rules. | [View Day 5](./DAY%205/README.md) |
 | **DAY 6** | **PV_D3SK2 (Lectures L1 to L11 - Labs):** Labs for All DRC Rules: Width & Spacing Rules, Wide Metal & Notch Rules, Via Cuts & Auto-Vias, Min Area & Hole Rules, Deep N-Well Checks, Derived Layers, P-Cells, Angle Errors, Unimplemented KLayout Rules, Latch-up/Antenna Checks, and Density Dummy Fill. | [View Day 6](./DAY%206/README.md) |
-| **DAY 7** | *Upcoming Module 4 Labs & Lectures* | [View Day 7](./DAY%207/README.md) |
-| **DAY 8** | *Upcoming Module 4 Labs & Lectures* | [View Day 8](./DAY%208/README.md) |
+| **DAY 7** | **PV_D4SK1 (Lectures L1 to L6):** Understanding PNR and Physical Verification: OpenLANE Flow Architecture, Automated RTL2GDS Setup, Interactive OpenLANE Run Steps (`prep`, `synthesis`, `floorplan`, `placement`, `cts`, `routing`), Techniques to Prevent PNR DRC Errors, and Manual ECO Layout Fixes in Magic. | [View Day 7](./DAY%207/README.md) |
+| **DAY 8** | *Upcoming Module 5 Labs & Lectures* | [View Day 8](./DAY%208/README.md) |
 | **DAY 9** | *Upcoming Module 5 Labs & Lectures* | [View Day 9](./DAY%209/README.md) |
 | **DAY 10** | *Upcoming Module 5 Labs & Lectures* | [View Day 10](./DAY%2010/README.md) |
 
@@ -45,4 +45,5 @@ This repository documents the 10-day physical verification journey for tapeout r
 * **Netgen:** LVS (Layout vs. Schematic) verification tool
 * **Ngspice:** SPICE circuit & post-layout transient simulation
 * **KLayout:** GDSII layout viewer & XOR comparison engine
+* **OpenLANE / OpenROAD:** Automated RTL-to-GDSII ASIC placement & routing flow
 * **open_pdks:** Open-Source SkyWater 130nm PDK integration framework
