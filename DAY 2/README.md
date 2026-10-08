@@ -119,16 +119,28 @@ Select `Symbol -> Make symbol from schematic` (Shortcut key `A`) in Xschem to au
    * Draw `met1` power rails at top ($V_{DD}$) and bottom ($V_{SS}$).
    * Connect N-well tap to $V_{DD}$ rail and P-substrate tap to $V_{SS}$ rail using `mcon` and `licon` contacts.
 
+![Inverter Layout Routing Steps in Magic](images/day2_l5_inverter_layout.png)
+
 ---
 
 ## PV_D1SK2_L6: Final DRC/LVS Checks & Post Layout Simulations
 
 1. **Magic DRC Check:**
    * Execute `drc check` in Magic console; verify **DRC = 0 errors**.
+   * ![Magic DRC 0 Errors Verification](images/day2_l6_drc_clean.png)
+
 2. **Netgen LVS Verification:**
    * Extract layout SPICE netlist in Magic (`extract all`, `ext2spice lvs`, `ext2spice`).
-   * Run Netgen comparison (`netgen -batch lvs inverter.spice inverter_layout.spice sky130A_setup.tcl lvs_comp.out`).
+   * ![Magic Layout Netlist Extraction for LVS](images/day2_l6_lvs_ext.png)
+   * Run Netgen comparison:
+     ```bash
+     netgen -batch lvs inverter.spice inverter_layout.spice sky130A_setup.tcl lvs_comp.out
+     ```
+   * ![Netgen LVS Batch Run Execution](images/day2_l6_netgen_run.png)
    * Confirm **Circuits match uniquely!**
-3. **Post-Layout Parasitic Extraction:**
+   * ![Netgen LVS Circuits Match Uniquely Report](images/day2_l6_lvs_matched.png)
+
+3. **Post-Layout Parasitic Extraction & Simulation:**
    * Extract parasitic capacitance/resistance (`ext2spice cthresh 0.01`, `ext2spice extresist on`).
    * Run Ngspice simulation to measure extracted propagation delay ($t_{pd}$).
+   * ![Post-Layout Extracted SPICE Simulation](images/day2_l6_post_layout_sim.png)
