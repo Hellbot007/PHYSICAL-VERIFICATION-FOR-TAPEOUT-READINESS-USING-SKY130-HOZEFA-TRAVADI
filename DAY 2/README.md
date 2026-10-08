@@ -1,7 +1,7 @@
 # DAY 2: Module 1 - PV_D1SK2: Tool Installations & Basic DRC/LVS Design Flow
 
 ## Overview
-Day 2 covers **Module 1 (Part 2: PV_D1SK2 - Lectures L1 to L6)**. This hands-on lab module walks through environment verification, device layout construction in Magic, schematic design in Xschem, symbol export, layout vs. schematic (LVS) matching with Netgen, DRC cleaning, and post-layout SPICE simulations.
+Day 2 covers **Module 1 (Part 2: PV_D1SK2 - Lectures L1 to L6)**. This hands-on lab module documents environment setup, PDK linking, primitive layout creation in Magic, schematic capture and symbol generation in Xschem, testbench assembly, transient SPICE simulations in Ngspice, and physical verification (DRC & LVS).
 
 ---
 
@@ -17,62 +17,102 @@ Day 2 covers **Module 1 (Part 2: PV_D1SK2 - Lectures L1 to L6)**. This hands-on 
 
 ## PV_D1SK2_L1: Check Tool Installations
 
-Before performing design labs, the open-source toolchain installation is verified:
-* **Magic:** Verify executable `magic` and check that the technology file `sky130A.tech` loads without errors.
-* **Xschem:** Ensure `xschem` starts with the `xschemrc` configuration pointing to `$PDK_ROOT/sky130A/libs.tech/xschem`.
-* **Ngspice:** Verify `ngspice` simulation engine and PDK SPICE model files (`sky130.lib.spice`).
-* **Netgen:** Verify `netgen` setup script `setup.tcl` for Sky130 LVS comparison rules.
+### 1. Magic Initial Environment Check
+Launching Magic from terminal. Initially, Magic starts with the default `minimum` technology file.
+
+![Magic Default Launch](images/day2_l1_magic_launch.png)
+
+### 2. Workspace Directory Setup & PDK File Linking
+* Create project directory `inverter` with subdirectories `xschem`, `mag`, and `netgen`.
+* Create symbolic links (`ln -s`) linking system PDK files (`/usr/share/pdk/sky130A/libs.tech/...`).
+* Verify executable paths for `magic`, `xschem`, and `netgen`.
+
+![PDK Setup & Link Creation](images/day2_l1_pdk_linking.png)
+
+### 3. Xschem Configuration Check
+Launching Xschem to verify configuration script loading (`xschemrc`).
+
+![Xschem Launch Verification](images/day2_l1_xschem_launch.png)
 
 ---
 
 ## PV_D1SK2_L2: Creating Sky130 Device Layout In Magic
 
-1. **Starting Magic with SKY130 Tech File:**
-   ```bash
-   magic -T sky130A.tech
-   ```
-2. **Instantiating Primitive Devices:**
-   * Open the Device menu (`Device 1` / `Device 2`).
-   * Select core transistors: `nfet_01v8` (NMOS) and `pfet_01v8` (PMOS).
-   * Specify device geometry ($W$ width, $L$ length, and number of fingers).
-3. **Substrate & Well Taps:**
-   * Place `nwell` tap contacts (`nsubstratepcont`) for PMOS bulk connection to $V_{DD}$.
-   * Place `pwell` tap contacts (`psubstratepcont`) for NMOS bulk connection to $V_{SS}$.
+### 1. Workspace Structure Verification
+Organized working directory structure under `inverter/` containing `mag`, `netgen`, and `xschem`.
+
+![Inverter Workspace Directories](images/day2_l2_inverter_dirs.png)
+
+### 2. Xschem Sky130 Primitives Top Schematic
+Inspecting `sky130_tests/top.sch` showcasing primitive devices available in the PDK: MIM capacitors, 3-pin PFET/NFET transistors, resistors, diodes, and PNPs.
+
+![Xschem Sky130 Primitives Top Schematic](images/day2_l2_sky130_tests_top.png)
+
+### 3. Loading SKY130 Technology File in Magic
+Launching Magic inside `mag/` directory with `sky130A` technology loaded (`magic -T sky130A.tech`). The title bar displays `Technology: sky130A` and activates device menus (`Devices 1` / `Devices 2`).
+
+![Magic Sky130A Technology Loaded](images/day2_l2_magic_sky130a.png)
+
+### 4. Creating Transistor Device Layout
+* Instantiate `sky130_fd_pr__nfet_01v8` transistor device.
+* Configure multi-finger layout and surrounding guard rings (`top/right/left guard ring`).
+* Real-time DRC status confirms **DRC=0 errors**.
+
+![NFET 01V8 Layout in Magic](images/day2_l2_nfet_layout_magic.png)
 
 ---
 
 ## PV_D1SK2_L3: Creating Simple Schematic In Xschem
 
-1. **Launching Xschem:**
-   ```bash
-   xschem
-   ```
-2. **Placing Circuit Components:**
-   * Press `Shift + I` to insert symbols.
-   * Add `pfet_01v8.sym` and `nfet_01v8.sym` from `sky130_tests`.
-   * Add DC voltage sources (`vsource`) for power ($V_{DD} = 1.8\text{V}$) and input stimulus.
-   * Place global ground (`gnd`) and supply (`vdd`) pins.
-3. **Connecting Transistors (CMOS Inverter / PFET-NFET Pair):**
-   * Connect PMOS source to $V_{DD}$ and NMOS source to $V_{SS}$.
-   * Tie PMOS and NMOS gates together to form input node `in`.
-   * Join PMOS and NMOS drains together to form output node `out`.
+### 1. Placing Transistors in Xschem
+* Place `pfet_01v8` ($M2$) and `nfet_01v8` ($M1$) transistors.
+* Connect gates and drains together; insert I/O pins (`iopin.sym`).
+
+![Placing Transistors in Xschem](images/day2_l3_inverter_schematic_wip.png)
+
+### 2. Completed Inverter Schematic
+* Configure transistor width ($W$) and length ($L$):
+  * PMOS (`pfet_01v8`): $W/L = 1 \times 3\,\mu\text{m} / 0.18\,\mu\text{m}$
+  * NMOS (`nfet_01v8`): $W/L = 1 \times 4.5\,\mu\text{m} / 0.18\,\mu\text{m}$
+* Define input pin `in`, output pin `out`, supply `vdd`, and ground `vss`.
+
+![Completed Inverter Schematic](images/day2_l3_inverter_schematic_done.png)
 
 ---
 
 ## PV_D1SK2_L4: Creating Symbol and Exporting Schematic In Xschem
 
-1. **Symbol Creation:**
-   * Generate custom symbol representation (`inverter.sym`) from schematic (`inverter.sch`).
-   * Assign pin directions: Input `in`, Output `out`, Power `VPWR`, Ground `VGND`.
-2. **SPICE Netlist Export:**
-   * Click **Netlist** -> **LVS Netlist** in Xschem.
-   * Save extracted SPICE netlist (`inverter.spice`).
+### 1. Symbol Generation
+Select `Symbol -> Make symbol from schematic` (Shortcut key `A`) in Xschem to automatically generate `inverter.sym`.
+
+![Make Symbol Menu](images/day2_l4_make_symbol_menu.png)
+
+### 2. Building Inverter Testbench (`inverter_tb.sch`)
+* Instantiate the generated `inverter` symbol (`x1`).
+* Connect DC supply source `V2` ($1.8\text{V}$) and PWL stimulus `V1` (`PWL(0 0 20n 0 900n 1.8)`).
+
+![Inverter Testbench Assembly](images/day2_l4_inverter_tb_symbol.png)
+
+### 3. Attaching SPICE Model Cards & Control Blocks
+* Save testbench as `inverter_tb.sch`.
+* Attach SPICE model library reference card (`.lib /usr/share/pdk/sky130A/libs.tech/ngspice/sky130.lib.spice tt`).
+* Add simulation control block (`.control tran 1n 1u plot V(in) V(out) .endc`).
+
+![Saving Inverter Testbench](images/day2_l4_save_inverter_tb.png)
+
+![Full Testbench Schematic View](images/day2_l4_inverter_tb_full.png)
+
+### 4. Ngspice Simulation Execution & Transient Response
+* Export SPICE netlist `inverter_tb.spice`.
+* Execute Ngspice simulation: observe input signal `v(in)` transition triggering complementary output response `v(out)`.
+
+![Ngspice Transient Simulation Plot](images/day2_l4_ngspice_simulation.png)
 
 ---
 
 ## PV_D1SK2_L5: Importing Schematic To Layout & Inverter Layout Steps
 
-1. **Layout Placement & Interconnect Routing:**
+1. **Layout Routing & Interconnects:**
    * Route PMOS and NMOS drain terminals using Local Interconnect (`li`) and Metal1 (`met1`) to form the output node `out`.
    * Route PMOS and NMOS gates via `poly` and `li` to form input node `in`.
 2. **Power Rails & Bulk Connections:**
@@ -83,32 +123,12 @@ Before performing design labs, the open-source toolchain installation is verifie
 
 ## PV_D1SK2_L6: Final DRC/LVS Checks & Post Layout Simulations
 
-1. **Magic Real-time DRC Check:**
-   * In Magic Tcl console:
-     ```tcl
-     drc check
-     drc why
-     ```
-   * Ensure **DRC = 0 errors**.
-
-2. **Netgen LVS Comparison:**
-   * Extract layout SPICE netlist in Magic:
-     ```tcl
-     extract all
-     ext2spice lvs
-     ext2spice
-     ```
-   * Run Netgen LVS compare:
-     ```tcl
-     netgen -batch lvs "inverter.spice" "inverter_layout.spice" sky130A_setup.tcl lvs_comp.out
-     ```
+1. **Magic DRC Check:**
+   * Execute `drc check` in Magic console; verify **DRC = 0 errors**.
+2. **Netgen LVS Verification:**
+   * Extract layout SPICE netlist in Magic (`extract all`, `ext2spice lvs`, `ext2spice`).
+   * Run Netgen comparison (`netgen -batch lvs inverter.spice inverter_layout.spice sky130A_setup.tcl lvs_comp.out`).
    * Confirm **Circuits match uniquely!**
-
-3. **Post-Layout Parasitic Extraction & Simulation:**
-   * Extract parasitic capacitance ($C$) and resistance ($R$) in Magic:
-     ```tcl
-     ext2spice cthresh 0.01
-     ext2spice extresist on
-     ext2spice
-     ```
-   * Run `ngspice inverter_extracted.spice` to simulate transient output and propagation delay ($t_{pd}$).
+3. **Post-Layout Parasitic Extraction:**
+   * Extract parasitic capacitance/resistance (`ext2spice cthresh 0.01`, `ext2spice extresist on`).
+   * Run Ngspice simulation to measure extracted propagation delay ($t_{pd}$).
