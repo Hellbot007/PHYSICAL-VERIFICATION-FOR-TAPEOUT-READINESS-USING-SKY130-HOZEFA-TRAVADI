@@ -15,7 +15,8 @@ This repository documents the 10-day physical verification journey for tapeout r
 * **Module 1 (Part 2: `PV_D1SK2`):** Tool Installations and Basic DRC/LVS Design Flow Labs (Lectures L1 to L6) — **DAY 2**
 * **Module 2 (Part 1: `PV_D2SK1`):** Introduction to DRC and LVS Theory (Lectures L1 to L9) — **DAY 3**
 * **Module 2 (Part 2: `PV_D2SK2`):** Labs for GDS Read/Write, Extraction, DRC, LVS and XOR Setup (Lectures L1 to L7) — **DAY 4**
-* **Module 3:** *(Upcoming)* — **DAY 5 & DAY 6**
+* **Module 3 (Part 1: `PV_D3SK1`):** Introduction to DRC Rules Theory (Lectures L1 to L9) — **DAY 5**
+* **Module 3 (Part 2: `PV_D3SK2`):** Labs for All DRC Rules (Lectures L1 to L11) — **DAY 6**
 * **Module 4:** *(Upcoming)* — **DAY 7 & DAY 8**
 * **Module 5:** *(Upcoming)* — **DAY 9 & DAY 10**
 
@@ -29,8 +30,8 @@ This repository documents the 10-day physical verification journey for tapeout r
 | **DAY 2** | **PV_D1SK2 (Lectures L1 to L6):** Hands-on Lab Design Flow: Check Tool Installations, Creating Sky130 Device Layout in Magic, Creating Schematic in Xschem, Symbol Export & SPICE Netlisting, Inverter Layout & Routing, Magic DRC Check (0 errors), Netgen LVS, and Post-Layout Parasitic Simulation. *Includes 14 detailed screenshots.* | [View Day 2](./DAY%202/README.md) |
 | **DAY 3** | **PV_D2SK1 (Lectures L1 to L9 - Theory):** Introduction to DRC and LVS: GDSII File Format Architecture, Extraction Commands & Styles in Magic, Advanced Extraction Options, GDS Read/Write Controls, DRC Rule Definitions, Extraction Errors, Netgen LVS Setup (`setup.tcl`), and Verification by Boolean XOR. | [View Day 3](./DAY%203/README.md) |
 | **DAY 4** | **PV_D2SK2 (Lectures L1 to L7 - Labs):** Hands-on Labs for GDS Read/Write, Port/Label Creation, LEF Abstract Views, Parasitic RC Extraction Flow, DRC Debugging, Netgen LVS Matching, and Automated KLayout XOR Comparison Setup. | [View Day 4](./DAY%204/README.md) |
-| **DAY 5** | *Upcoming Module 3 Labs & Lectures* | [View Day 5](./DAY%205/README.md) |
-| **DAY 6** | *Upcoming Module 3 Labs & Lectures* | [View Day 6](./DAY%206/README.md) |
+| **DAY 5** | **PV_D3SK1 (Lectures L1 to L9 - Theory):** Introduction to DRC Rules: Silicon Manufacturing Constraints, Backend Metal Rules, Local Interconnect Rules, FEOL Transistor/Implants/Well Rules, Deep N-Well & High-Voltage Rules, Device Rules, Latch-up/Antenna/Stress Rules, Layer Density Limits, and DFM/ERC Rules. | [View Day 5](./DAY%205/README.md) |
+| **DAY 6** | **PV_D3SK2 (Lectures L1 to L11 - Labs):** Labs for All DRC Rules: Width & Spacing Rules, Wide Metal & Notch Rules, Via Cuts & Auto-Vias, Min Area & Hole Rules, Deep N-Well Checks, Derived Layers, P-Cells, Angle Errors, Unimplemented KLayout Rules, Latch-up/Antenna Checks, and Density Dummy Fill. | [View Day 6](./DAY%206/README.md) |
 | **DAY 7** | *Upcoming Module 4 Labs & Lectures* | [View Day 7](./DAY%207/README.md) |
 | **DAY 8** | *Upcoming Module 4 Labs & Lectures* | [View Day 8](./DAY%208/README.md) |
 | **DAY 9** | *Upcoming Module 5 Labs & Lectures* | [View Day 9](./DAY%209/README.md) |
