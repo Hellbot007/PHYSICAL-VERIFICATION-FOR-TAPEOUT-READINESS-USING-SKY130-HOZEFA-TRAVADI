@@ -133,49 +133,167 @@ This lab (`vsd_lvs_lab/exercise_2`) demonstrates hierarchical LVS matching on de
 
 ## PV_D5SK2_L3: LVS With Blackboxes Subcircuits
 
-### Lab Objective
-Blackbox IP blocks or memory macros during LVS when layout details are omitted or proprietary.
+### Overview of Exercise 3 Setup
+This lab (`vsd_lvs_lab/exercise_3`) focuses on performing LVS when subcircuits are declared as blackboxes (modules defined with `.subckt cell1 A B C ... .ends` but having no internal layout/primitive definitions). When Netgen encounters a blackbox cell, it automatically equates all ports and matches connections based strictly on pin names and top-level net graph topology.
 
-1. **Defining Blackbox Elements in `setup.tcl`:**
-   ```tcl
-   # Instruct Netgen to treat subcircuit 'ram_1k' as a blackbox
-   blackbox ram_1k
-   ```
-2. **Blackbox Matching Criteria:**
-   * Netgen checks matching subcircuit name and port connection count without comparing internal transistor structures.
-3. **Verification:**
-   * Run Netgen LVS to confirm top-level interconnections to blackboxed macros match schematic definitions.
+---
+
+### Part 1: Initial Blackbox LVS Execution & Pin Order Mismatch Analysis
+
+1. **Initial Netgen LVS Execution:**
+   * Executing Netgen batch LVS on `exercise_3`:
+     ```bash
+     netgen -batch lvs "exercise_3.spice exercise_3" "exercise_3.sch.spice exercise_3" sky130A_setup.tcl exercise_3_comp.out
+     ```
+   * Initial result reports mismatch due to subcircuit port sequence discrepancies:
+     ```text
+     Circuits do not match uniquely.
+     Netgen result: 4 errors.
+     ```
+   * ![Initial Netgen LVS Mismatch Report for Exercise 3](image/day9_l3_initial_netgen_lvs_mismatch.png)
+
+2. **Inspecting `exercise_3_comp.out` Pin Comparison Logs:**
+   * Detailed examination of the output file reveals node mismatch breakdown:
+     ```text
+     Subcircuit pin lists differ:
+     Circuit 1: cell1 pin order A B C
+     Circuit 2: cell1 pin order C B A
+     ```
+   * ![Netgen comp.out Pin Mismatch Analysis](image/day9_l3_comp_out_pin_mismatch_analysis.png)
+
+3. **Blackbox Subcircuit Pin Ordering Mismatch:**
+   * Pin sequence mismatch in subcircuit headers leads to incorrect top-level pin mapping:
+   * ![Blackbox Pin Order Mismatch Breakdown](image/day9_l3_blackbox_pin_order_mismatch.png)
+
+---
+
+### Part 2: Subcircuit Pin Sequence Fix & Clean LVS Verification
+
+1. **Standardizing Subcircuit Port Sequence:**
+   * Aligning the `.subckt cell1 A B C` port definition in the layout netlist `exercise_3.spice` with the schematic netlist:
+   * ![Modified Subcircuit Pin Order Netlist View](image/day9_l3_modified_subckt_pin_order.png)
+
+2. **Re-running Netgen LVS:**
+   * Netgen re-evaluates blackbox pin equality and executes graph matching:
+   * ![Netgen LVS Match Execution Output](image/day9_l3_netgen_lvs_match_output.png)
+
+3. **Final Clean LVS Result (`Circuits match uniquely`):**
+   * Verification successful with zero errors reported:
+     ```text
+     Circuits match uniquely.
+     Result: 0 errors.
+     ```
+   * ![Final Netgen LVS Clean Result](image/day9_l3_final_circuits_match_uniquely.png)
 
 ---
 
 ## PV_D5SK2_L4: LVS With SPICE Low Level Components
 
-### Lab Objective
-Verify low-level SPICE primitives (resistors, MIM capacitors, diodes, high-voltage transistors).
+### Overview of Exercise 4 Setup
+This lab (`vsd_lvs_lab/exercise_4`) explores matching low-level SPICE primitive components (resistors, diodes, capacitors, transistors) in Netgen. Primitives require specific device classification (`Class: c` for resistors, `Class: diode` for diodes) and symmetric terminal permutation rules (`permute`) in `sky130A_setup.tcl`.
 
-1. **SPICE Model & PDK Device Names:**
-   * Layout device models (`sky130_fd_pr__res_high_po`, `sky130_fd_pr__cap_mim_m3_1`) must map to corresponding schematic SPICE primitives.
-2. **Setup File Equivalence Mapping:**
-   ```tcl
-   # Map schematic symbol name to layout extracted device name
-   equate devices sky130_fd_pr__res_high_po res_high_po
-   ```
-3. **Run LVS:** Verify parameter properties ($R$ in Ohms, $C$ in Farads).
+---
+
+### Part 1: Initial Primitive Component LVS Run & Mismatch Diagnosis
+
+1. **Initial LVS Execution:**
+   * Executing Netgen on `exercise_4` before configuring pin permutations or device class tolerances:
+   * ![Initial LVS Mismatch Report for Exercise 4](image/day9_l4_initial_lvs_mismatch_report.png)
+
+2. **Primitive Device Class & Pin Permutation Mismatch Analysis:**
+   * Netgen `comp.out` log indicates mismatches where passive terminals (`end_a` vs `end_b`, `A` vs `C`) are treated as fixed directional ports instead of symmetric permutable pins:
+   * ![Primitive Device Class Mismatch Report](image/day9_l4_primitive_device_class_mismatch.png)
+
+---
+
+### Part 2: Configuring PDK Setup File (`sky130A_setup.tcl`)
+
+1. **Setting Up Permutation Rules for Cells & Primitives:**
+   * Edit `sky130A_setup.tcl` to add symmetric pin permutation commands for cells and passive devices:
+     ```tcl
+     permute "-circuit1 cell1" A C
+     permute "-circuit2 cell1" A C
+     ```
+   * ![Setup TCL Permute Configuration Script](image/day9_l4_setup_tcl_permute_configuration.png)
+
+2. **Defining Generic Resistor & Diode Permutations:**
+   * Configure symmetric terminal swapping for low-level resistors (`sky130_fd_pr__res_generic_po`, `m1`-`m5`):
+     ```tcl
+     foreach dev $devices {
+         permute "-circuit1 $dev" end_a end_b
+         permute "-circuit2 $dev" end_a end_b
+     }
+     ```
+   * ![Sky130 Setup Script Permute Pins Section](image/day9_l4_sky130_setup_permute_pins.png)
+
+3. **Configuring Property Tolerances & Series/Parallel Combining:**
+   * Enable series/parallel device combining and define property tolerances for resistor length (`l`) and width (`w`):
+     ```tcl
+     property "-circuit1 $dev" series enable
+     property "-circuit1 $dev" parallel enable
+     property "-circuit1 $dev" tolerance {l 0.01} {w 0.01}
+     property "-circuit1 $dev" delete mult
+     ```
+   * ![Sky130 Setup Script Property Tolerances](image/day9_l4_sky130_setup_property_tolerances.png)
+
+---
+
+### Part 3: Re-running Netgen & Final Verification
+
+1. **Netgen LVS Reduction & Matching:**
+   * Re-running Netgen LVS with updated PDK configuration: Netgen merges series/parallel components and permutates symmetric pins.
+   * ![Netgen LVS Matching Process Log](image/day9_l4_netgen_lvs_matching_process.png)
+
+2. **Final Clean LVS Verification (`Circuits match uniquely`):**
+   * Successful completion with zero errors:
+     ```text
+     Circuits match uniquely.
+     Result: 0 errors.
+     ```
+   * ![Final Netgen Clean Match Output](image/day9_l4_final_circuits_match_uniquely.png)
 
 ---
 
 ## PV_D5SK2_L5: LVS For Small Analog Block - Power-On Reset - Part 1
 
-### Lab Objective
-Schematic capture and layout extraction for a Power-On Reset (POR) analog circuit block.
+### Overview of Exercise 5 Setup
+This lab (`vsd_lvs_lab/exercise_5`) demonstrates full-flow hierarchical schematic capture, SPICE extraction, setup scripting, and physical layout verification for a real-world analog IP block: the **Power-On Reset (POR)** circuit integrated inside `user_analog_project_wrapper`.
 
-1. **POR Circuit Topology:**
-   * Consists of RC delay network, bias generator, threshold comparators, and inverter chain output.
-2. **Schematic & Layout Alignment:**
-   * Set up POR schematic in Xschem (`por.sch`).
-   * Perform layout extraction in Magic (`por.mag`).
-3. **Initial LVS Run & Debugging:**
-   * Execute Netgen LVS; identify initial pin mismatches and bulk bias connection errors.
+---
+
+### Part 1: Schematic Capture & Netlist Extraction in Xschem
+
+1. **Xschem Schematic View (`user_analog_project_wrapper.sch`):**
+   * Opening `user_analog_project_wrapper.sch` in Xschem displaying instantiations of dual Power-On Reset (`example_por` `x1`, `x2`) blocks, power supply rails ($V_{DD}$, $V_{SS}$), and analog I/O pads (`io_analog`, `io_clamp`).
+   * ![Xschem Schematic of user_analog_project_wrapper](image/day9_l5_xschem_user_analog_wrapper_schematic.png)
+
+2. **SPICE Netlist Extraction:**
+   * Generating SPICE netlist `user_analog_project_wrapper.spice` via Xschem (`Netlist` -> `Write SPICE Netlist`):
+   * ![Extracted SPICE Netlist for Analog Wrapper](image/day9_l5_extracted_spice_netlist.png)
+
+---
+
+### Part 2: Netgen Execution, Setup Script & Physical Layout Verification
+
+1. **Netgen LVS Execution:**
+   * Executing Netgen LVS to compare extracted schematic netlist against layout netlist:
+   * ![Netgen LVS Execution Terminal View](image/day9_l5_netgen_lvs_execution.png)
+
+2. **PDK Generic Resistor Configuration in `sky130A_setup.tcl`:**
+   * Configuring generic resistor models (`sky130_fd_pr__res_generic_po`, `l1`, `m1`-`m5`), tolerance limits, and parameter property matching rules:
+   * ![Sky130 Setup TCL Generic Resistors Setup](image/day9_l5_sky130_setup_generic_resistors.png)
+
+3. **Magic Layout Window - Top-Level Wrapper:**
+   * Opening `user_analog_project_wrapper.mag` in Magic layout viewer showing top-level cell boundary, power rings, and macro placements:
+   * ![Magic Layout View Top Level Wrapper Window](image/day9_l5_magic_top_level_layout.png)
+
+4. **Magic Layout Window - POR Subcell Layout:**
+   * Detailed view inside `example_por` analog subcell layout showing PMOS/NMOS transistor arrays, poly resistor ladders, substrate taps, and guard rings:
+   * ![Magic Layout View POR Subcell Details](image/day9_l5_magic_por_subcell_layout.png)
+
+5. **Xschem Testbench Schematic (`analog_wrapper_tb.sch`):**
+   * Testbench schematic setup `analog_wrapper_tb.sch` instantiating `user_analog_project_wrapper` with transient simulation sources, `.control` simulation statements, and PDK library includes:
+   * ![Xschem Testbench Schematic analog_wrapper_tb](image/day9_l5_xschem_analog_wrapper_tb.png)
 
 ---
 
