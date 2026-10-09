@@ -603,12 +603,85 @@ This lab covers verifying substrate tap distance limits to prevent CMOS latch-up
 
 ---
 
-## PV_D3SK2_L11: Lab For Density Rules
+## PV_D3SK2_L11: Lab For Density Rules & Dummy Metal Fill Generation
 
-### Objective
-Execute metal density checks and generate dummy metal fill.
+### Overview of Exercise 11 Setup
+This lab (`exercise_11`) covers verifying metal density rules ($35\% \le \text{Density} \le 60\%$) and executing PDK dummy fill generation scripts to insert floating dummy metal fill patterns for wafer CMP planarization.
 
-1. **Running Density Script:**
-   * Calculate metal density over $100\,\mu\text{m} \times 100\,\mu\text{m}$ sliding windows.
-2. **Generating Dummy Metal Fill:**
-   * Run OpenLane / KLayout dummy fill generation script to insert floating `metal1` through `metal5` tiles in sparse regions.
+---
+
+### Part 1: Initial Density Assessment & Violation Diagnostic
+
+1. **Initial Layout Setup (`exercise_11`):**
+   * Inspect base layout with sparse metal coverage.
+   * ![Exercise 11 Initial Density Rules Layout](images/day6_l11_ex11_initial_layout.png)
+
+2. **Querying Coverage in TKCON (`cif cover MET1`):**
+   * Check initial `MET1` metal coverage:
+     ```tcl
+     cif cover MET1
+     Cell Area = 490000000000 CIF units^2
+     Coverage in cell = 5.6%
+     ```
+   * Initial metal coverage ($5.6\%$) fails the minimum required threshold ($35\%$).
+   * ![Querying Initial Layer Coverage (5.6%)](images/day6_l11_ex11_cif_cover_met1.png)
+
+3. **Running Density Checking Script:**
+   * Execute density checker script to generate full metal density report:
+     ```text
+     ***Error: FOM Density < 33%
+     ***Error: LI Density < 35%
+     ***Error: MET1 Density < 35%
+     ***Error: MET2 Density > 60%
+     ***Error: MET3 Density < 35%
+     ***Error: MET4 Density < 35%
+     ***Error: MET5 Density < 45%
+     ```
+   * ![Density Checking Script Error Report](images/day6_l11_ex11_density_script_errors.png)
+
+---
+
+### Part 2: Generating Dummy Metal Fill Patterns
+
+1. **Executing PDK Fill Generator Script:**
+   * Run the SkyWater SKY130 PDK dummy metal fill python script:
+     ```bash
+     /usr/share/pdk/sky130A/libs.tech/magic/generate_fill.py exercise_11.mag
+     ```
+   * Script tiles arrayed metal fill blocks (`exercise_11_fill_pattern_0_0`).
+   * ![Running Generate Fill Script](images/day6_l11_ex11_gen_fill_script.png)
+   * ![Generate Fill Script Execution Output](images/day6_l11_ex11_gen_fill_output.png)
+
+---
+
+### Part 3: Importing Fill GDS & Verifying Density Compliance
+
+1. **Reading GDS Fill Pattern into Magic:**
+   * Load generated GDS file into Magic and inspect metal fill tiles:
+     ```tcl
+     gds read exercise_11_fill_pattern
+     see no *
+     see allm2
+     see m2fill
+     ```
+   * ![Reading Generated Fill GDS in Magic](images/day6_l11_ex11_gds_read_fill.png)
+   * ![Viewing Metal2 Dummy Fill Tiles](images/day6_l11_ex11_see_m2fill.png)
+
+2. **Instantiating Fill Pattern into Layout:**
+   * Reload base design `exercise_11` and add fill subcell instance:
+     ```tcl
+     load exercise_11
+     getcell exercise_11_fill_pattern child 0 0
+     ```
+   * ![Loading exercise_11 Base Layout](images/day6_l11_ex11_load_exercise11.png)
+   * ![Instantiating Fill Pattern Subcell](images/day6_l11_ex11_getcell_fill_pattern.png)
+   * ![Tiled Dummy Metal Fill Close-Up Layout View](images/day6_l11_ex11_tiled_fill_closeup.png)
+
+3. **Final Density Verification (`Coverage = 56.2%`):**
+   * Re-evaluate metal layer coverage in tkcon after dummy fill insertion:
+     ```tcl
+     cif cover m1_all  -> Coverage in cell = 56.2%
+     cif cover m2_all  -> Coverage in cell = 88.8%
+     ```
+   * Dummy fill tiles successfully boost total metal coverage to $56.2\%$, achieving 100% compliance with CMP planarization density requirements!
+   * ![Final Metal Density Coverage Check Passed](images/day6_l11_ex11_final_coverage_pass.png)
