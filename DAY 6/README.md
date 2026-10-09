@@ -6,8 +6,8 @@ Day 6 covers **Module 3 (Part 2: PV_D3SK2 - Lectures L1 to L11)**. This practica
 ---
 
 ## Table of Contents
-1. [PV_D3SK2_L1: Lab For Width Rule And Spacing Rule (Exercise 1 Lab)](#pv_d3sk2_l1-lab-for-width-rule-and-spacing-rule-exercise-1-lab)
-2. [PV_D3SK2_L2: Lab For Wide Spacing Rule And Notch Rule](#pv_d3sk2_l2-lab-for-wide-spacing-rule-and-notch-rule)
+1. [PV_D3SK2_L1: Lab For Width Rule And Spacing Rule (Exercise 1a & 1b Lab)](#pv_d3sk2_l1-lab-for-width-rule-and-spacing-rule-exercise-1a--1b-lab)
+2. [PV_D3SK2_L2: Lab For Wide Spacing Rule And Notch Rule (Exercise 1c & 1d Lab - DRC=0 Final)](#pv_d3sk2_l2-lab-for-wide-spacing-rule-and-notch-rule-exercise-1c--1d-lab---drc0-final)
 3. [PV_D3SK2_L3: Lab For Via Size, Multiple Vias, Via Overlap and Autogenerate Vias](#pv_d3sk2_l3-lab-for-via-size-multiple-vias-via-overlap-and-autogenerate-vias)
 4. [PV_D3SK2_L4: Lab For Minimum Area Rule And Minimum Hole Rule](#pv_d3sk2_l4-lab-for-minimum-area-rule-and-minimum-hole-rule)
 5. [PV_D3SK2_L5: Lab For Wells And Deep N-Well](#pv_d3sk2_l5-lab-for-wells-and-deep-n-well)
@@ -20,7 +20,7 @@ Day 6 covers **Module 3 (Part 2: PV_D3SK2 - Lectures L1 to L11)**. This practica
 
 ---
 
-## PV_D3SK2_L1: Lab For Width Rule And Spacing Rule (Exercise 1 Lab)
+## PV_D3SK2_L1: Lab For Width Rule And Spacing Rule (Exercise 1a & 1b Lab)
 
 ### Overview of Exercise 1 Setup
 * **Cell Loaded:** `exercise_1` in Magic with `sky130A` technology file.
@@ -93,21 +93,73 @@ Day 6 covers **Module 3 (Part 2: PV_D3SK2 - Lectures L1 to L11)**. This practica
 
 ---
 
-## PV_D3SK2_L2: Lab For Wide Spacing Rule And Notch Rule
+## PV_D3SK2_L2: Lab For Wide Spacing Rule And Notch Rule (Exercise 1c & 1d Lab - DRC=0 Final)
 
-### Objective
-Implement conditional spacing rules for wide metal wires and notch spacing checks.
-
-1. **Wide Spacing Rule Syntax:**
+### Overview of Selection & Movement Techniques in Magic
+To resolve positioning and spacing violations without repainting entire geometries:
+1. **Selecting Layout Objects:** Place cursor over target shape and press key **`s`** to select the tile/chunk.
+2. **Moving Objects using Numeric Keypad:**
+   * **Key `6`:** Move East (Right)
+   * **Key `4`:** Move West (Left)
+   * **Key `8`:** Move North (Up)
+   * **Key `2`:** Move South (Down)
+3. **Alternative Movement Command:**
    ```tcl
-   spacing metal1 metal1 280 corner_touching "Wide metal1 (>1.5um) spacing must be 0.28um"
+   move e 0.3um
    ```
-2. **Notch Spacing Rule:**
-   * A notch is a narrow gap within a single continuous polygon.
-   * `spacing metal1 metal1 140 notch_check` forces minimum notch fill or clearance.
-3. **Lab Verification:**
-   * Create a wide $2.0\,\mu\text{m}$ `metal1` bus adjacent to a thin wire with $0.14\,\mu\text{m}$ gap $\rightarrow$ Triggers wide metal DRC rule.
-   * Increase clearance to $0.28\,\mu\text{m}$ to clean violation.
+
+---
+
+### Part 1: Debugging & Fixing Exercise_1c (Wide Spacing Rule)
+
+1. **DRC Violation Diagnostic (`drc why`):**
+   * Inspect error region adjacent to wide metal plane in `Exercise_1c`.
+   * Run `drc why` in tkcon:
+     ```text
+     Metal3 spacing < 0.3um (met3.2)
+     Metal3 > 3um spacing to unrelated m3 < 0.4um (met3.3d)
+     ```
+   * ![Exercise 1c DRC Why Command](images/day6_l2_ex1c_drc_why.png)
+
+2. **Measuring Wide Plane Dimensions:**
+   * Execute `box` command on wide metal plane:
+     ```text
+     microns: 3.32 x 3.29
+     ```
+   * Because width exceeds $3.0\,\mu\text{m}$, the required wide metal spacing to unrelated `metal3` increases to $0.40\,\mu\text{m}$.
+   * ![Measuring Wide Metal Plane Dimensions](images/day6_l2_ex1c_box_measurement.png)
+
+3. **Moving Adjacent Wire using Keypad / Move Command:**
+   * Hover cursor over adjacent `metal3` wire segment, press **`s`** to select object, and shift it eastwards using **numeric keypad `6`** or tkcon command:
+     ```tcl
+     move e 0.3um
+     ```
+   * Total DRC error count drops from `DRC=7` down to `DRC=2`.
+   * ![Moving Object East using Numeric Keypad / Command](images/day6_l2_ex1c_move_keypad.png)
+
+4. **Verification & DRC Clearance:**
+   * Once spacing clearance exceeds $0.40\,\mu\text{m}$, `drc why` reports `No errors found.` and the white dotted error box vanishes for Exercise 1c.
+   * ![Exercise 1c DRC Cleared](images/day6_l2_ex1c_drc_cleared.png)
+
+---
+
+### Part 2: Debugging & Fixing Exercise_1d (Notch Rule) to Achieve DRC=0
+
+1. **DRC Violation Diagnostic (`drc why`):**
+   * Inspect notch cutout region in `Exercise_1d`.
+   * Notch rules enforce minimum fill or clearance gap within a continuous polygon boundary.
+   * ![Exercise 1d Notch Rule Layout Setup](images/day6_l2_ex1d_notch_rule.png)
+
+2. **Applying Notch Correction & Keypad Movement:**
+   * Select notch boundary segment with key **`s`** and shift shape using numeric keypad or paint command to satisfy minimum notch rule requirement.
+
+3. **Final Status — DRC = 0 Achieved!**
+   * Upon resolving Exercise 1d, the top layout title bar updates to:
+     ```text
+     ✔ DRC=0  Loaded: exercise_1 Editing: exercise_1 Tool: box Technology: sky130A
+     ```
+   * All 4 sub-exercises (`Exercise_1a`, `Exercise_1b`, `Exercise_1c`, `Exercise_1d`) in `exercise_1` are completely clean with zero DRC errors!
+   * ![Exercise 1 Final View with DRC=0](images/day6_l2_exercise1_drc0_final.png)
 
 ---
 
