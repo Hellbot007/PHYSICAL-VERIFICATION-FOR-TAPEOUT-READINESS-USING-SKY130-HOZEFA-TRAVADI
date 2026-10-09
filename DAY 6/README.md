@@ -298,16 +298,34 @@ This lab (`exercise_3`) covers verifying minimum polygon area constraints (`Exer
 
 ## PV_D3SK2_L5: Lab For Wells And Deep N-Well
 
-### Objective
-Enforce well spacing, well tap rules, and Deep N-Well (`dnwell`) clearances.
+### Overview of Exercise 4 Setup
+This lab (`exercise_4`) focuses on well definitions, substrate tap placement, and well enclosure constraints:
+* **Left Region:** P-well (`pwell`) requiring P-substrate tap (`ptap`) connections to `VSS`.
+* **Right Region:** N-well (`nwell`) requiring N-substrate tap (`ntap`) connections to `VDD`.
 
-1. **Well Spacing Syntax:**
-   ```tcl
-   spacing nwell nwell 1270 "N-Well spacing (different potential) must be at least 1.27um"
-   ```
-2. **Deep N-Well Isolation Checks:**
-   * Verify enclosure of `dnwell` around isolated `pwell`.
-   * Check clearance between `dnwell` and outer `nwell` contacts.
+---
+
+### Part 1: Debugging & Fixing Exercise_4a (Wells & Substrate Layer Setup)
+
+1. **Substrate Tap Rule Requirements:**
+   * All active CMOS devices inside P-well or N-well must be properly biased to prevent latch-up.
+   * To resolve initial DRC errors, construct substrate tap layers directly over the P-well on the left and the N-well on the right.
+2. **Visual Inspection & Substrate Layer Placement:**
+   * ![Exercise 4a Wells and Substrate Setup](images/day6_l5_ex4a_wells_substrate.png)
+
+---
+
+### Part 2: Debugging & Fixing Exercise_4b (Substrate Tap Overlap & DRC Clearance)
+
+1. **Adjusting Substrate Tap Enclosure:**
+   * Expand the tap contact box and paint local interconnect (`li`) layer to satisfy minimum overlap rules ($0.12\,\mu\text{m}$ surround constraint):
+     ```tcl
+     box grow c 0.12um
+     paint li
+     ```
+2. **DRC Clearance Verification:**
+   * Expanding the interconnect overlay provides valid substrate pick-up contacts across both P-well and N-well regions, completely clearing the well tap DRC violations.
+   * ![Exercise 4b Substrate Tap Overlap Adjustment](images/day6_l5_ex4b_wells_substrate_tap.png)
 
 ---
 
