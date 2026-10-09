@@ -401,25 +401,86 @@ This lab (`exercise_5`) covers inspecting and debugging derived layers created b
 
 ## PV_D3SK2_L7: Lab For Parameterized And PDK Devices
 
-### Objective
-Verify DRC compliance of parameterized cells (P-Cells) and PDK macros.
+### Overview of Exercise 6 Setup
+This lab (`exercise_6`) focuses on verifying Parameterized Cells (P-Cells) and foundry PDK library macro blocks (such as ESD and I/O cells) within Magic:
+* **Exercise 6a (`Exercise_6a: Parameterized_devices`)**: Variable parameter transistor P-Cells with integrated guard rings.
+* **Exercise 6b (`Exercise_6b`)**: PDK I/O signal macro cells (`sky130_fd_io__signal_5_sym_hv_local_5term`).
 
-1. **P-Cell Verification:**
-   * Generate `nfet_01v8` with variable fingers ($N=1, 2, 4$) and widths ($W = 1\,\mu\text{m}$ to $10\,\mu\text{m}$).
-   * Verify that guard ring spacing dynamically adjusts without causing DRC errors.
+---
+
+### Part 1: Exercise_6a — Parameterized Transistor Cells (P-Cells)
+
+1. **P-Cell Features in Magic:**
+   * Parameterized cells automatically generate correct layout geometries (finger counts, gate width $W$, gate length $L$, and substrate guard ring enclosures) while maintaining DRC compliance.
+2. **Visual Inspection:**
+   * ![Exercise 6a Parameterized Device P-Cell Layout](images/day6_l7_ex6a_pcell_transistor.png)
+   * ![Exercise 6a P-Cell Transistor Close-Up View](images/day6_l7_ex6a_pcell_closeup.png)
+
+---
+
+### Part 2: Exercise_6b — PDK Library Macro Cells & Subcell Hierarchy
+
+1. **Inspecting PDK Hard Macros:**
+   * Foundry PDK macro cells contain complex multi-layer structures and protective boundary warnings (e.g. `DO NOT MERGE WITH PFET NWELL`).
+   * ![Exercise 6b PDK I/O Macro Layout View](images/day6_l7_ex6b_pdk_io_macro.png)
+
+2. **Cell Hierarchy & Filepath Inspector:**
+   * Selecting macro cell instances displays the underlying PDK reference file path in tkcon:
+     ```text
+     cellname filepath sky130_fd_io__signal_5_sym_hv_local_5term
+     /usr/share/pdk/sky130A/libs.ref/sky130_fd_io/mag
+     ```
+   * ![Exercise 6b PDK Cell Property Inspector](images/day6_l7_ex6b_io_macro_inspector.png)
+
+3. **Full Canvas Layout View:**
+   * Overview of `exercise_6` combining custom P-Cell transistors and PDK macro blocks:
+   * ![Exercise 6 Full Layout Canvas](images/day6_l7_exercise6_full_canvas.png)
 
 ---
 
 ## PV_D3SK2_L8: Lab For Angle Error And Overlap Rule
 
-### Objective
-Detect non-manhattan off-angle geometries and illegal layer overlaps.
+### Overview of Exercise 7 Setup
+This lab (`exercise_7`) addresses off-grid geometry alignment (`Exercise_7a Off-grid_error`), non-manhattan angle errors (`Exercise_7b` & `7c Angle_error`), layer splitpainting, and upper metal via overlap rules. Initial cell load starts with `DRC=8`.
 
-1. **Off-Angle Geometry Check:**
-   * Magic enforces Manhattan grid alignment ($90^\circ$ and $45^\circ$ edges).
-   * Non-manhattan edges trigger `non-integer grid / angle error`.
-2. **Layer Overlap Rules:**
-   * Enforce valid overlap conditions between `licon`, `li`, and `metal1`.
+---
+
+### Part 1: Exercise_7a — Manufacturing Grid & Off-Grid Angle Errors
+
+1. **Manufacturing Grid Alignment:**
+   * Magic enforces manufacturing grid snap limits ($0.005\,\mu\text{m}$). Moving polygons off-grid triggers grid alignment warnings:
+     ```text
+     This position does not align with the manufacturing grid
+     ```
+   * Non-manhattan off-grid edges generate white dotted DRC error boxes.
+   * ![Exercise 7a Off-Grid Angled DRC Error](images/day6_l8_ex7a_offgrid_angled.png)
+   * ![Exercise 7a Manufacturing Grid Alignment Warning](images/day6_l8_ex7a_offgrid_warning.png)
+
+---
+
+### Part 2: Exercise_7b & 7c — Angle Errors & Layer Overlap Checks
+
+1. **Initial DRC Status (`DRC=8`):**
+   * Overview of `exercise_7` displaying off-grid and angle errors across sub-exercises 7a, 7b, and 7c.
+   * ![Exercise 7 Overview Layout (DRC=8)](images/day6_l8_ex7_overview_drc8.png)
+
+2. **Splitpainting & Overlap Constraints:**
+   * Testing splitpaint operations (`splitpaint sw m1`) and verifying layer overlap legality:
+     ```text
+     Can't overlap those layers
+     ```
+   * ![Exercise 7 Splitpaint and Layer Overlap Test](images/day6_l8_ex7_splitpaint_overlap.png)
+
+---
+
+### Part 3: Overlap Rules & Via Arrays (`via2`)
+
+1. **Verifying Upper Via Overlaps (`cif see VIA2`):**
+   * Inspecting `via2` cut array enclosure over metal interconnect layers:
+     ```tcl
+     cif see VIA2
+     ```
+   * ![Exercise 7 Via2 Overlap Rule Verification](images/day6_l8_ex7_overlap_rule_via2.png)
 
 ---
 
