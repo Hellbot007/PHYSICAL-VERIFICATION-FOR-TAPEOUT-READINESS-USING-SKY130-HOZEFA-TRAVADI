@@ -36,6 +36,14 @@ Day 4 covers **Module 2 (Part 2: PV_D2SK2 - Lectures L1 to L7)**. This lab modul
      save <cell_name>.mag
      ```
 
+![GDS Read Environment Setup](images/day4_l1_1.png)
+![Executing GDS Read Command](images/day4_l1_2.png)
+![Loading Cell Hierarchy in Magic](images/day4_l1_3.png)
+![Verifying Layer Mapping & Geometry](images/day4_l1_4.png)
+![Magic Tile Layers View](images/day4_l1_5.png)
+![Saving Magic MAG Cell File](images/day4_l1_6.png)
+![GDS Import Verification Complete](images/day4_l1_7.png)
+
 ---
 
 ## PV_D2SK2_L2: Ports
@@ -66,6 +74,13 @@ Ports define electrical connections and boundary interfaces required for LVS mat
 3. **Inspecting Port Indexing:**
    * Verify created ports: `port list` or `port index`.
 
+![Selecting Metal1 Box for Label Creation](images/day4_l2_1.png)
+![Placing Label Pins A and Y](images/day4_l2_2.png)
+![Executing Port Make Command](images/day4_l2_3.png)
+![Assigning Port Direction and Use](images/day4_l2_4.png)
+![Power and Ground Port Class Configuration](images/day4_l2_5.png)
+![Verifying Port List Index in Magic](images/day4_l2_6.png)
+
 ---
 
 ## PV_D2SK2_L3: Abstract Views
@@ -81,6 +96,9 @@ Abstract views conceal internal transistor geometries while preserving boundary 
    ```
 3. **Verify LEF Contents:**
    * Inspect output `.lef` file: confirm `MACRO <cell_name>`, `FOREIGN`, `ORIGIN`, `SIZE`, `PIN` dimensions, and `OBS` (Obstruction) layers.
+
+![Setting Cell Bounding Box for LEF](images/day4_l3_1.png)
+![Executing LEF Write Command](images/day4_l3_2.png)
 
 ---
 
@@ -107,6 +125,13 @@ Abstract views conceal internal transistor geometries while preserving boundary 
 3. **Inspect Output SPICE File (`.spice`):**
    * Verify subcircuit definition (`.subckt`), pin list, transistor models (`sky130_fd_pr__nfet_01v8`), and extracted parasitics.
 
+![Executing Extract All Command](images/day4_l4_1.png)
+![Extracted EXT File Verification](images/day4_l4_2.png)
+![Configuring ext2spice LVS Settings](images/day4_l4_3.png)
+![Generating SPICE Netlist from Extracted Data](images/day4_l4_4.png)
+![Enabling Parasitic Resistance Extraction](images/day4_l4_5.png)
+![Inspecting Final Extracted SPICE File](images/day4_l4_6.png)
+
 ---
 
 ## PV_D2SK2_L5: Setup For DRC
@@ -125,6 +150,11 @@ Abstract views conceal internal transistor geometries while preserving boundary 
    * **Width Violations:** Expand wire or polygon trace to meet minimum width requirement.
    * **Spacing Violations:** Move adjacent wires apart to satisfy layer spacing rules.
    * **Enclosure Violations:** Extend metal/diffusion boundaries around contact vias (`licon`, `mcon`).
+
+![Running Interactive DRC Check in Magic](images/day4_l5_1.png)
+![Highlighting DRC Violations with drc find](images/day4_l5_2.png)
+![Inspecting DRC Error Rationale with drc why](images/day4_l5_3.png)
+![Resolving Layout Geometry Errors (DRC=0)](images/day4_l5_4.png)
 
 ---
 
@@ -147,6 +177,9 @@ Abstract views conceal internal transistor geometries while preserving boundary 
      ```
    * If mismatched, review device count discrepancies, net shorts/opens, or pin permutation errors reported in `lvs_comp.out`.
 
+![Preparing Netgen LVS Netlists](images/day4_l6_1.png)
+![Netgen LVS Comparison Report (Circuits Match Uniquely)](images/day4_l6_2.png)
+
 ---
 
 ## PV_D2SK2_L7: Setup For XOR
@@ -160,3 +193,6 @@ Abstract views conceal internal transistor geometries while preserving boundary 
 3. **Viewing XOR Differences:**
    * Open `xor_diff.gds` in KLayout / Magic.
    * Highlighted non-zero shapes represent exact physical geometry differences between the two layout versions.
+
+![Setting Up Layout GDS Revisions for XOR](images/day4_l7_1.png)
+![Viewing XOR Output Geometry Differences](images/day4_l7_2.png)

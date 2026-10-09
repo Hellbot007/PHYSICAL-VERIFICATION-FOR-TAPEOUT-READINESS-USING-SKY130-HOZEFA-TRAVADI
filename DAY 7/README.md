@@ -1,7 +1,10 @@
 # DAY 7: Module 4 - PV_D4SK1: Understanding PNR and Physical Verification
 
 ## Overview
-Day 7 covers **Module 4 (PV_D4SK1 - Lectures L1 to L6)**. This module focuses on Place and Route (PNR) and physical verification signoff using the open-source **OpenLANE** ASIC flow. It details the complete RTL-to-GDSII pipeline, autonomous vs. interactive OpenLANE runs, techniques to prevent PNR DRC congestion errors, and manual ECO layout fix strategies in Magic.
+Day 7 covers **Module 4 (PV_D4SK1 - Lectures L1 to L6)**. This module focuses on Place and Route (PNR) and physical verification signoff using the open-source **OpenLANE** ASIC flow on Ubuntu Linux. 
+
+> **Author Note & Setup Context:**  
+> During the workshop demonstration of Module 4 (Day 7), the OpenLANE flow was executed on an Ubuntu Linux environment. As cloud lab access was unavailable, a complete combined walkthrough of all OpenLANE stages—from RTL synthesis, floorplanning, placement, clock tree synthesis (CTS), routing, to signoff DRC/LVS—was conducted, studied, and documented through step-by-step visual screenshots below.
 
 ---
 
@@ -60,6 +63,12 @@ OpenLANE is an automated open-source RTL-to-GDSII flow built around OpenROAD too
 +-----------------------------------------------------------------------------------+
 ```
 
+![OpenLANE Architecture Overview](images/day7_1.png)
+![OpenLANE Tool Integration Pipeline](images/day7_2.png)
+![SkyWater 130 PDK OpenLANE Setup](images/day7_3.png)
+![OpenROAD Executable Interface](images/day7_4.png)
+![Yosys Synthesis Technology Mapping](images/day7_5.png)
+
 ---
 
 ## PV_D4SK1_L2: RTL2GDS For Demo Design
@@ -88,6 +97,12 @@ Run the complete automated flow non-interactively:
 * **`results/`**: Final synthesized Verilog, DEF placement/routing, LEF macros, GDSII layout, extracted SPICE, and SDC timing constraints.
 * **`reports/`**: Detailed reports for area, gate count, setup/hold slack, DRC violation count, and Netgen LVS comparison logs.
 * **`logs/`**: Individual tool logs for Yosys, OpenROAD, Magic, and Netgen.
+
+![Design Directory & Config Setup](images/day7_6.png)
+![Running Non-Interactive Flow](images/day7_7.png)
+![Runs Directory Structure Breakdown](images/day7_8.png)
+![Synthesis Metrics and Area Report](images/day7_9.png)
+![OpenSTA Timing Reports Analysis](images/day7_10.png)
 
 ---
 
@@ -122,8 +137,18 @@ run_floorplan
 run_placement
 ```
 * **Global Placement:** Spreads standard cell instances across the core area (RePlAce).
-* **Tap & Decap Cell Insertion:** Places substrate tap cells (`sky130_fd_sc_hd__tapvpwrvgnd_1`) at regular intervals to prevent latch-up.
+* **Tap & Decap Cell Insertion:** Places substrate tap cells (`sky130_fd_sc_hd__tapvpwrvpnd_1`) at regular intervals to prevent latch-up.
 * **Detailed Placement:** Aligns standard cells strictly onto site rows and grid tracks (OpenDP).
+
+![Interactive Shell Initialization](images/day7_11.png)
+![Executing Prep Command](images/day7_12.png)
+![Interactive Synthesis Step](images/day7_13.png)
+![Floorplan Core Sizing](images/day7_14.png)
+![I/O Pin Placement](images/day7_15.png)
+![Power Distribution Network (PDN) Generation](images/day7_16.png)
+![Global Placement Execution](images/day7_17.png)
+![Tap and Decap Cell Insertion](images/day7_18.png)
+![Detailed Placement Alignment](images/day7_19.png)
 
 ---
 
@@ -155,6 +180,15 @@ run_antenna_check
 * **`run_lvs`:** Runs Netgen LVS comparing extracted layout SPICE netlist against synthesized gate netlist.
 * **`run_antenna_check`:** Verifies plasma antenna ratio compliance.
 
+![Clock Tree Synthesis (CTS) Execution](images/day7_20.png)
+![TritonCTS Buffer Tree Generation](images/day7_21.png)
+![Global Routing Congestion Guides](images/day7_22.png)
+![TritonRoute Detailed Routing](images/day7_23.png)
+![Magic Layout Stream Out and DRC](images/day7_24.png)
+![KLayout GDS View Generation](images/day7_25.png)
+![Netgen LVS Signoff Verification](images/day7_26.png)
+![Antenna Ratio Check Results](images/day7_27.png)
+
 ---
 
 ## PV_D4SK1_L5: Techniques To Avoid Common DRC Errors
@@ -182,6 +216,10 @@ Automated routers (TritonRoute) can encounter routing congestion resulting in DR
   ```tcl
   set ::env(DRT_OPT_ITERS) 64
   ```
+
+![Core Utilization Adjustment Diagram](images/day7_28.png)
+![Routing Track Layer Pitch Controls](images/day7_29.png)
+![Tap Cell Distance Parameter Tuning](images/day7_30.png)
 
 ---
 
@@ -217,3 +255,6 @@ After manual layout edits:
 1. Export updated GDS: `gds write spm_fixed.gds`
 2. Extract SPICE netlist: `extract all`, `ext2spice lvs`, `ext2spice`
 3. Run Netgen LVS: Compare extracted `spm_fixed.spice` against `spm.v` using `setup.tcl` to guarantee netlist integrity.
+
+![Loading PNR DEF Layout in Magic](images/day7_31.png)
+![Manual ECO Layout Fix & Final Signoff](images/day7_32.png)
