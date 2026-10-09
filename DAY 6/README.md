@@ -484,31 +484,122 @@ This lab (`exercise_7`) addresses off-grid geometry alignment (`Exercise_7a Off-
 
 ---
 
-## PV_D3SK2_L9: Lab For Unimplemented Rules
+## PV_D3SK2_L9: Lab For Unimplemented Rules & Seal Ring Generator
 
-### Objective
-Identify DRC rules not directly supported by Magic's built-in engine and offload verification to KLayout DRC scripts.
+### Overview of Seal Ring & Special Unimplemented Rules
+This lab (`exercise_8` & seal ring generation) covers generating foundry seal rings and handling special rules not directly verified inside standard cell DRC scripts.
 
-1. **Unimplemented Rule Handling:**
-   * Complex 2D contextual rules (e.g. End-of-Line spacing with run length) are exported to KLayout DRC script format (`.drc`).
-2. **Executing KLayout DRC Batch:**
-   ```bash
-   klayout -b -r sky130A_drc.drc -rd input=design.gds
-   ```
+> [!NOTE]
+> **Key Seal Ring Rules:**
+> * Seal rings surround the outer chip boundary to protect internal core circuitry against mechanical cracking and moisture during die dicing.
+> * A seal ring consists purely of metal/via stack rings — **no active diffusion (`diff`/`tap`) layers can be placed inside the seal ring region**, and no netlist properties are attached to seal ring cells.
+
+---
+
+### Part 1: Generating Seal Ring via PDK Python Script
+
+1. **Running Seal Ring Generator Script:**
+   * Execute the SkyWater SKY130 PDK seal ring python generator script in terminal:
+     ```bash
+     cd vsd_drc_lab/
+     /usr/share/pdk/sky130A/libs.tech/magic/seal_ring_generator/sky130_gen_sealring.py 2000 2000 seal_test
+     ```
+   * ![Generating Seal Ring using Python Script](images/day6_l9_gen_sealring_script.png)
+   * ![Seal Ring Generation Terminal Output](images/day6_l9_gen_sealring_output.png)
+
+2. **Generated Output Directory (`seal_test`):**
+   * Script outputs cell files `advSeal_6um_gen.gds`, `advSeal_6um_gen.mag`, and `seal_ring_corner_abstract.mag`:
+   * ![Generated Seal Ring Files Directory Listing](images/day6_l9_seal_test_directory.png)
+
+---
+
+### Part 2: Loading & Verifying Seal Ring in Magic
+
+1. **Loading Seal Ring Cell in Magic:**
+   * Add cell path and load `advSeal_6um_gen`:
+     ```tcl
+     addpath seal_test
+     load advSeal_6um_gen
+     ```
+   * ![Loading advSeal_6um_gen in Magic](images/day6_l9_load_advseal_magic.png)
+
+2. **Abstract Corner Alignment ($6\,\mu\text{m}$ Offset):**
+   * View corner abstract cells (`seal_ring_corner_abstract_0` .. `_3`) placed at chip corners.
+   * ![Seal Ring Corner Abstract Placement](images/day6_l9_seal_ring_corner_abstract.png)
+   * ![Seal Ring Corner Alignment Offset](images/day6_l9_seal_ring_corner_zoom.png)
+
+3. **DRC Verification (`DRC=0`):**
+   * Inspecting full seal ring metal ring stack on canvas verifies zero DRC violations (`DRC=0`).
+   * ![Seal Ring Layout Verification (DRC=0)](images/day6_l9_advseal_drc0_layout.png)
+   * ![Exercise 8 Macro Layout Overview](images/day6_l9_exercise8_layout.png)
 
 ---
 
 ## PV_D3SK2_L10: Latch-up And Antenna Rules
 
-### Objective
-Setup and verify latch-up tap distance checks and antenna ratio calculation scripts.
+### Overview of Exercise 9 & 10 Setup
+This lab covers verifying substrate tap distance limits to prevent CMOS latch-up (`Exercise_9a: Latchup_rules`) and extracting antenna ratios to resolve plasma charge accumulation violations using antenna diodes (`Exercise_10: Antenna_rules`).
 
-1. **Latch-up Check:**
-   * Measure distance from every transistor diffusion edge to nearest `ntap`/`ptap`.
-   * If distance $> 20\,\mu\text{m}$, insert substrate tap.
-2. **Antenna Rule Check:**
-   * Calculate ratio of metal area connected to poly gate.
-   * Insert antenna diode (`sky130_fd_pr__diode`) if ratio exceeds PDK limit.
+---
+
+### Part 1: Exercise_9a — Latch-up Rules & Tap Cell Placement
+
+1. **Latch-up Rule Concept:**
+   * Parasitic PNP and NPN transistors in CMOS substrates can form parasitic SCRs, causing low-impedance short circuits (latch-up).
+   * Substrate taps (`ntap`/`ptap`) must be placed within maximum allowed distance thresholds (typically $< 20\,\mu\text{m}$) from all active diffusions.
+
+2. **Inserting Tap Cell Macro in Magic (`getcell`):**
+   * Standard cell layouts (`sky130_fd_sc_hd__nor2_2`, `sky130_fd_sc_hd__buf_8`) are placed in rows.
+   * Insert physical tap cells (`sky130_fd_sc_hd__tapvpwrvgnd_1`) to tie wells to `VPWR`/`VGND`:
+     ```tcl
+     getcell sky130_fd_sc_hd__tapvpwrvgnd_1
+     ```
+   * ![Exercise 9a Standard Cell Layout Overview](images/day6_l10_ex9a_latchup_overview.png)
+   * ![Standard Cell Transistor Stack and Rails](images/day6_l10_ex9a_cell_stack.png)
+   * ![Inserting Tap Macro with getcell Command](images/day6_l10_ex9a_getcell_tap.png)
+
+---
+
+### Part 2: Exercise_10 — Antenna Rules Diagnostic & Ratio Extraction
+
+1. **Antenna Rule Concept:**
+   * During plasma etching, long metal routing tracks collect electrical charge (acting as antennas). If connected directly to MOSFET poly gates, high voltage can break down gate oxide dielectric.
+
+2. **Extracting Netlist & Running Antenna Checks (`antennacheck`):**
+   * Extract layout and execute antenna ratio checks in tkcon:
+     ```tcl
+     extract do local
+     extract all
+     antennacheck
+     ```
+   * Diagnostic command `antennacheck debug` reports antenna violations:
+     ```text
+     Cell: sky130_fd_sc_hd__inv_1_0
+     Antenna violation detected at plane metal2
+     Effective antenna ratio 888.825 > limit 400
+     ```
+   * Effective antenna ratio ($888.825$) severely exceeds the maximum PDK limit ($400$).
+   * ![Exercise 10 Antenna Rules Overview](images/day6_l10_ex10_antenna_overview.png)
+   * ![Executing Extract and Antennacheck](images/day6_l10_ex10_extract_antennacheck.png)
+   * ![Antenna Ratio Violation Diagnostic (Ratio 888.825 > Limit 400)](images/day6_l10_ex10_antenna_violation_ratio.png)
+
+---
+
+### Part 3: Fixing Antenna Violations with Antenna Diode
+
+1. **Inserting Antenna Diode (`sky130_fd_sc_hd__diode_2`):**
+   * Connect an antenna diode cell directly to the long metal routing track near the transistor gate input.
+   * The reverse-biased diode safely bleeds accumulated plasma charge to ground (`VGND`), protecting gate oxide integrity.
+
+2. **Re-Extraction & Verification:**
+   * Re-execute `extract all` and `antennacheck` in tkcon:
+     ```tcl
+     extract all
+     antennacheck
+     ```
+   * Antenna check finishes with zero violations (`DRC=0`).
+   * ![Running Antennacheck Debug after Diode Insertion](images/day6_l10_ex10_antennacheck_debug.png)
+   * ![Antenna Diode Inserted into Layout](images/day6_l10_ex10_antenna_diode_inserted.png)
 
 ---
 
