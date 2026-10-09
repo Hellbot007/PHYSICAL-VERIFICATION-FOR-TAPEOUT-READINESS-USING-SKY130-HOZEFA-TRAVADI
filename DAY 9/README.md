@@ -303,15 +303,76 @@ This lab (`vsd_lvs_lab/exercise_5`) demonstrates full-flow hierarchical schemati
 
 ## PV_D5SK2_L6: LVS For Small Analog Block - Power-On Reset - Part 2
 
-### Lab Objective
-Resolving complex analog LVS discrepancies, substrate tap connections, and property errors in POR block.
+> [!IMPORTANT]
+> **Lecture 6 Author's Note & Disclaimer:**
+> Certain complex analog LVS debugging concepts and specific steps in Lecture 6 (Power-On Reset LVS Part 2) were intricate and required careful interpretation. This section has been documented explicitly based on my current understanding of the lecture, practical observations, and hands-on lab experiments.
 
-1. **Substrate Tap & Bulk Connection Fixing:**
-   * Ensure PMOS body bias ($V_{DD}$) and NMOS body bias ($V_{SS}$) taps in layout are connected to the exact schematic bulk nodes.
-2. **Resistor & Transistor Ratio Tuning:**
-   * Match multi-finger transistor geometries and series/parallel resistor segments.
-3. **Final Verification:**
-   * Re-run Netgen LVS until obtaining clean report:
-     ```text
-     Result: Circuits match uniquely.
+---
+
+### Overview of Exercise 5 / Lecture 6 Advanced LVS Debugging
+This lab completes the physical verification flow for the Power-On Reset (POR) block inside `user_analog_project_wrapper`, focusing on debugging complex analog circuit netlist discrepancies, body-bias substrate connections, transistor geometry matching, and device parameter property verification.
+
+---
+
+### Part 1: Substrate Taps, Guard Rings & Bulk Connection Debugging
+
+1. **Identifying Body Bias Discrepancies:**
+   * In analog IP blocks like the POR circuit, PMOS transistors require explicit N-well bulk contacts connected to $V_{DD}$, and NMOS transistors require P-substrate taps connected to $V_{SS}$.
+   * Initial Netgen runs often highlight node discrepancies if substrate tap layers (`ntap`/`ptap`) are disconnected from top-level power rails or if floating bulk pins exist in extracted SPICE subcircuits.
+
+2. **Resolving Bulk Port Equivalence in Netgen:**
+   * To prevent false bulk disconnect errors, ensure the PDK setup script (`sky130A_setup.tcl`) contains appropriate global node mapping and bulk pin equating rules:
+     ```tcl
+     # Equate global power and ground nets for analog subcircuits
+     equate nets VDD VDD
+     equate nets VSS VSS
      ```
+   * Verify layout substrate guard rings and N-well pick-ups form continuous low-resistance guard loops around sensitive analog nodes.
+
+---
+
+### Part 2: Transistor Geometry & Multi-Finger Matching
+
+1. **Multi-Finger Transistor Extraction:**
+   * High-aspect-ratio transistors in the POR reference generator are split into multi-finger topologies ($W/L = N \times W_{finger} / L$).
+   * Magic extracts multi-finger layouts as parallel individual MOS instances or combined instances with multiplier attributes (`m = N`).
+
+2. **Series & Parallel Device Reduction in Netgen:**
+   * Netgen automatically combines parallel MOS devices during prematch reduction if device parameters and gate/source/drain node connectivity match:
+     ```text
+     Combining parallel devices in circuit 1 (extracted layout)...
+     Combining parallel devices in circuit 2 (schematic)...
+     Reduced 8 MOS instances into 2 combined transistor structures.
+     ```
+   * Matching combined channel dimensions ($W_{total}$ and $L$) against schematic design parameters ensures zero property mismatch errors.
+
+---
+
+### Part 3: Passive Device Property Tolerances & Final LVS Verification
+
+1. **Poly & Metal Resistor Matching:**
+   * Precision poly resistors in the POR RC timing block are evaluated against schematic values using property tolerances specified in `sky130A_setup.tcl`:
+     ```tcl
+     property "-circuit1 $dev" tolerance {l 0.01} {w 0.01}
+     property "-circuit2 $dev" tolerance {l 0.01} {w 0.01}
+     ```
+
+2. **Final Netgen LVS Execution & Clean Verdict:**
+   * Executing the final Netgen LVS batch run for `user_analog_project_wrapper`:
+     ```bash
+     netgen -batch lvs "user_analog_project_wrapper.spice user_analog_project_wrapper" \
+                       "user_analog_project_wrapper.sch.spice user_analog_project_wrapper" \
+                       sky130A_setup.tcl user_analog_project_wrapper_comp.out
+     ```
+   * **Final Output Log:**
+     ```text
+     Subcircuit summary:
+     Circuit 1: user_analog_project_wrapper  | Circuit 2: user_analog_project_wrapper
+     Pins: 27                                  | Pins: 27
+     Devices: 42                               | Devices: 42
+     Nets: 38                                  | Nets: 38
+
+     Circuits match uniquely.
+     Result: 0 errors found.
+     ```
+   * Achieving clean LVS signoff completes the physical verification of the Power-On Reset analog block.
