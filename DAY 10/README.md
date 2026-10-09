@@ -3,6 +3,10 @@
 ## Overview
 Day 10 covers **Module 5 (Part 2: PV_D5SK2 - Lectures L7 to L11)**. This final lab module covers advanced LVS verification scenarios: layout vs. CDL/Verilog for standard cells, macro-level LVS, complex mixed-signal Digital Phase-Locked Loop (PLL) verification, and debugging intricate device property errors.
 
+> [!IMPORTANT]
+> **Module 5 Author's Note & Disclaimer:**
+> Please note that during Module 5 (`PV_D5SK1` & `PV_D5SK2`: LVS Theory & Labs), certain complex concepts and specific lab exercises were not fully understood or were challenging to complete. As a result, this documentation has been constructed explicitly based on my personal understanding, practical observations, and hands-on interpretation of the specific lectures and available lab outputs.
+
 ---
 
 ## Table of Contents

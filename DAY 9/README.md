@@ -3,6 +3,10 @@
 ## Overview
 Day 9 covers **Module 5 (Part 2: PV_D5SK2 - Lectures L1 to L6)**. This practical lab module provides hands-on exercises for executing Netgen LVS comparisons on simple circuits, hierarchical subcircuits, blackboxed subblocks, low-level SPICE primitive components, and a small analog block (Power-On Reset circuit).
 
+> [!IMPORTANT]
+> **Module 5 Author's Note & Disclaimer:**
+> Please note that during Module 5 (`PV_D5SK1` & `PV_D5SK2`: LVS Theory & Labs), certain complex concepts and specific lab exercises were not fully understood or were challenging to complete. As a result, this documentation has been constructed explicitly based on my personal understanding, practical observations, and hands-on interpretation of the specific lectures and available lab outputs.
+
 ---
 
 ## Table of Contents

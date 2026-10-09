@@ -22,6 +22,10 @@ This repository documents the complete 10-day physical verification journey for 
 * **Module 5 (Part 2: `PV_D5SK2`):** LVS Labs Part 1 (Lectures L1 to L6) — **DAY 9**
 * **Module 5 (Part 2: `PV_D5SK2`):** LVS Labs Part 2 & Tapeout Signoff (Lectures L7 to L11) — **DAY 10**
 
+> [!NOTE]
+> **Module 5 Documentation Note:**
+> Module 5 documentation (`PV_D5SK1` & `PV_D5SK2`) reflects the author's hands-on observations and current understanding of the respective lectures and lab exercises.
+
 ---
 
 ## 📅 Daily Progress & Content Index

@@ -3,6 +3,10 @@
 ## Overview
 Day 8 covers **Module 5 (Part 1: PV_D5SK1 - Lectures L1 to L9)**. This theoretical module provides a comprehensive foundation in Layout Versus Schematic (LVS) verification, graph matching algorithms, Netgen core engine architecture, prematch analysis, series-parallel reduction, symmetry resolution, and LVS log interpretation.
 
+> [!IMPORTANT]
+> **Module 5 Author's Note & Disclaimer:**
+> Please note that during Module 5 (`PV_D5SK1` & `PV_D5SK2`: LVS Theory & Labs), certain complex concepts and specific lab exercises were not fully understood or were challenging to complete. As a result, this documentation has been constructed explicitly based on my personal understanding, practical observations, and hands-on interpretation of the specific lectures and available lab outputs.
+
 ---
 
 ## Table of Contents
