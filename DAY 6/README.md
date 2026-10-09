@@ -6,7 +6,7 @@ Day 6 covers **Module 3 (Part 2: PV_D3SK2 - Lectures L1 to L11)**. This practica
 ---
 
 ## Table of Contents
-1. [PV_D3SK2_L1: Lab For Width Rule And Spacing Rule](#pv_d3sk2_l1-lab-for-width-rule-and-spacing-rule)
+1. [PV_D3SK2_L1: Lab For Width Rule And Spacing Rule (Exercise 1 Lab)](#pv_d3sk2_l1-lab-for-width-rule-and-spacing-rule-exercise-1-lab)
 2. [PV_D3SK2_L2: Lab For Wide Spacing Rule And Notch Rule](#pv_d3sk2_l2-lab-for-wide-spacing-rule-and-notch-rule)
 3. [PV_D3SK2_L3: Lab For Via Size, Multiple Vias, Via Overlap and Autogenerate Vias](#pv_d3sk2_l3-lab-for-via-size-multiple-vias-via-overlap-and-autogenerate-vias)
 4. [PV_D3SK2_L4: Lab For Minimum Area Rule And Minimum Hole Rule](#pv_d3sk2_l4-lab-for-minimum-area-rule-and-minimum-hole-rule)
@@ -20,20 +20,76 @@ Day 6 covers **Module 3 (Part 2: PV_D3SK2 - Lectures L1 to L11)**. This practica
 
 ---
 
-## PV_D3SK2_L1: Lab For Width Rule And Spacing Rule
+## PV_D3SK2_L1: Lab For Width Rule And Spacing Rule (Exercise 1 Lab)
 
-### Objective
-Learn syntax and verification procedures for basic width and spacing DRC rules.
+### Overview of Exercise 1 Setup
+* **Cell Loaded:** `exercise_1` in Magic with `sky130A` technology file.
+* **Exercise Modules Included (4 Sub-Exercises):**
+  1. `Exercise_1a: Width_rule`
+  2. `Exercise_1b: Spacing_rule`
+  3. `Exercise_1c: Wide_spacing_rule`
+  4. `Exercise_1d: Notch_rule`
+* **Initial State:** Initial layout triggers `DRC=7` violations indicated by white dotted error boxes.
 
-1. **Tech File Syntax (`drc` section):**
-   ```tcl
-   width metal1 140 "Metal1 width must be at least 0.14um"
-   spacing metal1 metal1 140 touching_ok "Metal1 spacing must be at least 0.14um"
-   ```
-2. **Lab Verification in Magic:**
-   * Draw `metal1` trace of width $0.10\,\mu\text{m}$ (Trigger DRC violation: `drc why` $\rightarrow$ Metal1 width $< 0.14\,\mu\text{m}$).
-   * Draw two `metal1` traces with $0.10\,\mu\text{m}$ spacing (Trigger DRC violation: Metal1 spacing $< 0.14\,\mu\text{m}$).
-   * Fix geometries to $0.14\,\mu\text{m}$ and confirm **DRC=0 errors**.
+![Exercise 1 Overview in Magic (DRC=7)](images/day6_l1_exercise1_overview.png)
+
+---
+
+### Part 1: Debugging & Fixing Exercise_1a (Width Rule)
+
+1. **DRC Violation Diagnostic (`drc why`):**
+   * Hover box over `Exercise_1a` trace and execute `drc why` in tkcon:
+     ```text
+     Metal2 width < 0.14um (met2.1)
+     ```
+   * ![Exercise 1a DRC Why Command](images/day6_l1_ex1a_drc_why.png)
+   * ![Exercise 1a Selection View](images/day6_l1_ex1a_no_errors.png)
+   * ![Exercise 1a Dotted DRC Error Box](images/day6_l1_ex1a_close_up.png)
+
+2. **Measuring Polygon Geometry (`box`):**
+   * Execute `box` command in tkcon:
+     ```text
+     microns: 0.06 x 1.53
+     ```
+   * Current width of $0.06\,\mu\text{m}$ falls below minimum `metal2` width constraint of $0.14\,\mu\text{m}$.
+   * ![Box Measurement Command](images/day6_l1_ex1a_box_measurement.png)
+
+3. **Applying Width Correction Commands:**
+   * Set box width to $0.14\,\mu\text{m}$ and paint `metal2`:
+     ```tcl
+     box width 0.14um
+     paint m2
+     ```
+   * ![Executing Box Width and Paint Commands](images/day6_l1_ex1a_tkcon_commands.png)
+   * ![Metal2 Width Expanded to 0.14um](images/day6_l1_ex1a_paint_m2.png)
+
+4. **Verification & DRC Clearance:**
+   * Expanding trace width to $0.14\,\mu\text{m}$ clears the violation. `drc why` reports `No errors found.` and the white dotted error box vanishes.
+   * ![Exercise 1a DRC Cleared](images/day6_l1_ex1a_drc_cleared.png)
+
+---
+
+### Part 2: Debugging & Fixing Exercise_1b (Spacing Rule)
+
+1. **DRC Violation Diagnostic (`drc why`):**
+   * Select error region between adjacent `metal1` traces in `Exercise_1b`.
+   * Run `drc why`:
+     ```text
+     Metal1 spacing < 0.14um (met1.2)
+     ```
+   * ![Exercise 1b DRC Why Command](images/day6_l1_ex1b_drc_why.png)
+   * ![Exercise 1b Dotted DRC Error Box](images/day6_l1_ex1b_box_spacing.png)
+
+2. **Applying Spacing Correction Commands:**
+   * Set minimum clearance gap box to $0.14\,\mu\text{m}$ and adjust layout spacing:
+     ```tcl
+     box width 0.14um
+     paint m2
+     ```
+
+3. **Verification & DRC Clearance:**
+   * After repainting spacing gap to meet $0.14\,\mu\text{m}$, the white dotted error box disappears and tkcon reports `No errors found.` for Exercise 1b.
+   * ![Exercise 1b DRC Cleared](images/day6_l1_ex1b_drc_cleared.png)
 
 ---
 
