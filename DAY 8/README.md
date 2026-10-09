@@ -30,6 +30,11 @@ While DRC verifies geometric mask rules, **LVS verifies electrical circuit topol
   * Node connectivity definitions and pin labels.
   * Subcircuit declarations (`.subckt`).
 
+![Physical Verification of Extracted Netlist Overview](images/day8_l1_1.png)
+![Layout Tile Geometry Extraction to SPICE Nodes](images/day8_l1_2.png)
+![Extracted Netlist Devices & Port Labels](images/day8_l1_3.png)
+![Netlist Formatting for LVS Comparison](images/day8_l1_4.png)
+
 ---
 
 ## PV_D5SK1_L2: How LVS Matching Works
@@ -50,6 +55,11 @@ Schematic Netlist (Graph A)                 Layout Netlist (Graph B)
   * **Edges:** Transistors, resistors, capacitors, and diodes.
 * **Goal:** Determine if there exists a 1-to-1 mapping between nodes and edges of Graph A and Graph B.
 
+![Graph Isomorphism Matching Concept](images/day8_l2_1.png)
+![Topological Graph Representation](images/day8_l2_2.png)
+![Mapping Nodes and Edges between Netlists](images/day8_l2_3.png)
+![Verification of Topological Equivalence](images/day8_l2_4.png)
+
 ---
 
 ## PV_D5SK1_L3: LVS Netlist Vs Simulation Netlists
@@ -61,6 +71,12 @@ Schematic Netlist (Graph A)                 Layout Netlist (Graph B)
 | **Hierarchy** | Preserves `.subckt` blocks | Flattens for SPICE solver |
 | **Parallel Devices** | Combined ($W_{total} = \sum W_i$) | Retained as discrete devices |
 | **Primary Purpose** | Fast graph isomorphism matching in Netgen | Precise transient analysis in Ngspice |
+
+![LVS Netlist vs Simulation Netlist Overview](images/day8_l3_1.png)
+![Parasitic Element Handling in LVS Netlists](images/day8_l3_2.png)
+![Hierarchical Subcircuit Preservation](images/day8_l3_3.png)
+![Device Reduction and Parallel Merging](images/day8_l3_4.png)
+![Comparison of SPICE Format Specs](images/day8_l3_5.png)
 
 ---
 
@@ -77,6 +93,12 @@ Netgen uses an iterative partition refinement algorithm:
 4. **Isomorphism Decision:**
    * If all signatures between Layout and Schematic match 1-to-1, the circuits are verified identical.
 
+![Netgen Core Matching Architecture](images/day8_l4_1.png)
+![Initial Graph Partitioning](images/day8_l4_2.png)
+![Signature Propagation Algorithm](images/day8_l4_3.png)
+![Iterative Partition Refinement Steps](images/day8_l4_4.png)
+![Final Isomorphism Decision State](images/day8_l4_5.png)
+
 ---
 
 ## PV_D5SK1_L5: Netgen Prematch Analysis, Hierarchical Checking And Flattening
@@ -88,6 +110,13 @@ Netgen uses an iterative partition refinement algorithm:
   * Drastically reduces memory overhead and runtime for large SOC designs.
 * **Selective Flattening:**
   * If a subcircuit fails to match due to local layout differences, Netgen can selectively flatten that block into its parent hierarchy to resolve local routing discrepancies.
+
+![Prematch Statistical Analysis](images/day8_l5_1.png)
+![Hierarchical LVS Subcircuit Verification](images/day8_l5_2.png)
+![Memory Overhead & Speedup in Hierarchical LVS](images/day8_l5_3.png)
+![Selective Subcircuit Flattening Mechanism](images/day8_l5_4.png)
+![Resolving Local Discrepancies via Flattening](images/day8_l5_5.png)
+![Netgen Hierarchical Matching Log](images/day8_l5_6.png)
 
 ---
 
@@ -106,6 +135,12 @@ Netgen uses an iterative partition refinement algorithm:
   property default FET length 0.01
   ```
 
+![Pin Name and Count Verification](images/day8_l6_1.png)
+![Port Class & Direction Checking](images/day8_l6_2.png)
+![Device Property Tolerance Setup in setup.tcl](images/day8_l6_3.png)
+![Width and Length Mismatch Detection](images/day8_l6_4.png)
+![Property Inspection Log Report](images/day8_l6_5.png)
+
 ---
 
 ## PV_D5SK1_L7: Series Parallel Combining
@@ -119,6 +154,11 @@ Before running graph matching, Netgen simplifies netlists by performing device r
   * Series MOS devices with common gates are merged into equivalent single devices.
 * **Parallel Resistors & Capacitors:**
   * Parallel passive devices are merged into single equivalent elements ($R_{eq}$, $C_{eq}$).
+
+![Series-Parallel Device Reduction Concept](images/day8_l7_1.png)
+![Parallel Transistor Merging (W_total = Sum W_i)](images/day8_l7_2.png)
+![Series Transistor Combination Rules](images/day8_l7_3.png)
+![Passive Network Reduction (Resistors/Caps)](images/day8_l7_4.png)
 
 ---
 
@@ -139,6 +179,12 @@ Symmetric circuits (e.g. differential amplifiers, cross-coupled latches, ring os
 * **Symmetry Resolution in Netgen:**
   * Netgen detects symmetric ambiguity and applies deterministic symmetry breaking.
   * Uses pin label anchors or temporary node assignments to resolve symmetric ambiguity without generating false error reports.
+
+![Symmetric Ambiguity Problem in LVS](images/day8_l8_1.png)
+![Topological Hash Ambiguity for Symmetric Nodes](images/day8_l8_2.png)
+![Deterministic Symmetry Breaking Algorithm](images/day8_l8_3.png)
+![Pin Label Anchoring for Symmetry Resolution](images/day8_l8_4.png)
+![Symmetry Resolution Log Confirmation](images/day8_l8_5.png)
 
 ---
 
@@ -164,3 +210,12 @@ Reading the Netgen output comparison file (`lvs_comp.out`):
 * **Unmatched Nets:** Lists specific nets present in schematic but missing in layout (Open circuit) or merged in layout (Short circuit).
 * **Unmatched Devices:** Identifies missing or extra transistors.
 * **Property Differences:** Reports exact $W$ or $L$ values that exceed defined tolerance thresholds.
+
+![Netgen LVS Report Overview (lvs_comp.out)](images/day8_l9_1.png)
+![Circuits Match Uniquely Success Log](images/day8_l9_2.png)
+![Analyzing Topology Mismatch Logs](images/day8_l9_3.png)
+![Unmatched Nets & Node Diagnostics](images/day8_l9_4.png)
+![Unmatched Devices & Instance Discrepancies](images/day8_l9_5.png)
+![Open Circuit vs Short Circuit Log Indicators](images/day8_l9_6.png)
+![Property Mismatch Diagnostic Table](images/day8_l9_7.png)
+![Final Netgen LVS Summary Report](images/day8_l9_8.png)
