@@ -244,18 +244,55 @@ This lab focuses on verifying via geometry rules, multiple via cut array handlin
 
 ## PV_D3SK2_L4: Lab For Minimum Area Rule And Minimum Hole Rule
 
-### Objective
-Configure minimum polygon area and enclosed hole rules.
+### Overview of Exercise 3 Setup
+This lab (`exercise_3`) covers verifying minimum polygon area constraints (`Exercise_3a: Minimum_area_rule`), minimum enclosed hole rules inside wide metal planes (`Exercise_3b: Minimum_hole_rule`), and substrate/tap contact overlap rules in Magic.
 
-1. **Minimum Area Rule Syntax:**
-   ```tcl
-   area metal1 14000 "Metal1 minimum area must be at least 0.014um^2"
-   ```
-2. **Minimum Hole Rule:**
-   * Enforces minimum size for enclosed void holes inside wide metal planes to prevent resist collapse during litho.
-3. **Lab Verification:**
-   * Draw isolated $0.14\,\mu\text{m} \times 0.14\,\mu\text{m}$ square `metal1` patch ($\text{Area} = 0.0196\,\mu\text{m}^2 \ge 0.014\,\mu\text{m}^2$).
-   * Shrink to $0.14\,\mu\text{m} \times 0.05\,\mu\text{m}$ patch ($\text{Area} = 0.007\,\mu\text{m}^2$) $\rightarrow$ Triggers minimum area DRC error.
+---
+
+### Part 1: Debugging & Fixing Exercise_3a (Minimum Area Rule)
+
+1. **DRC Violation Diagnostic (`drc why`):**
+   * Inspecting an undersized `metal4` polygon in `Exercise_3a` triggers a minimum area violation:
+     ```text
+     Metal4 minimum area < 0.24um^2 (met4.4a)
+     Root cell box:
+         microns: 0.43 x 0.46 ( 0.08, 2.95 ), ( 0.51, 3.41 ) 0.20
+     ```
+   * Current polygon area ($0.20\,\mu\text{m}^2$) falls below the minimum required area threshold of $0.24\,\mu\text{m}^2$.
+   * ![Exercise 3a Minimum Area DRC Error](images/day6_l4_ex3a_min_area_drc.png)
+
+2. **Box Selection & Extending Polygon Area:**
+   * Place cursor over polygon boundary, adjust box size, and repaint layer to expand total area beyond $0.24\,\mu\text{m}^2$:
+     ```tcl
+     box size 0.17um 0.17um
+     paint li
+     ```
+   * ![Exercise 3a Box Selection for Expansion](images/day6_l4_ex3a_box_selection.png)
+   * ![Exercise 3a Painting and Extending Polygon Area](images/day6_l4_ex3a_paint_extend.png)
+
+3. **Diffusion Tap Overlap Check:**
+   * Evaluating tap overlap constraints (`diff/tap.10` and `licon.7`) in tkcon:
+     ```text
+     N-well overlap of N-tap < 0.18um (diff/tap.10)
+     N-tap overlap of N-tap contact < 0.12um in one direction (licon.7)
+     ```
+   * ![Exercise 3 Tap Overlap DRC Check](images/day6_l4_tap_overlap_drc.png)
+
+---
+
+### Part 2: Debugging & Fixing Exercise_3b (Minimum Hole Rule)
+
+1. **Rule Concept:**
+   * Enclosed void holes inside continuous metal planes must satisfy minimum dimension rules to prevent resist collapse and manufacturing flaws during photolithography.
+
+2. **Removing Enclosed Hole to Clear DRC (`No errors found`):**
+   * In `Exercise_3b`, selecting and filling/removing the void hole inside the wide metal plane clears the DRC violation.
+   * Executing `drc why` in tkcon verifies clean layout state:
+     ```text
+     No errors found.
+     ```
+   * Root cell box dimensions ($0.45\,\mu\text{m} \times 0.35\,\mu\text{m}$, area $0.16\,\mu\text{m}^2$) pass all checks with zero errors!
+   * ![Exercise 3b Hole Removed No Errors Found](images/day6_l4_ex3b_hole_removed_no_errors.png)
 
 ---
 
