@@ -331,16 +331,71 @@ This lab (`exercise_4`) focuses on well definitions, substrate tap placement, an
 
 ## PV_D3SK2_L6: Lab For Derived Layers
 
-### Objective
-Create temporary derived layers in Magic's technology file to evaluate complex multi-layer DRC rules.
+### Overview of Exercise 5 Setup
+This lab (`exercise_5`) covers inspecting and debugging derived layers created by boolean operations (e.g. `gate = poly AND diff`, `nfet = gate AND nsdm`) within Magic's SkyWater SKY130 technology file:
+* **Exercise 5a (`Exercise_5a: Derived_layers`)**: Channel & implant layer definitions.
+* **Exercise 5b (`Exercise_5b: Derived_layers`)**: Transistor type identification (`mvnmos`, `mvndiff`, `LVTN`, `HVI`).
+* **Exercise 5c (`Exercise_5c: Derived_layers`)**: Derived layer spacing rules between adjacent active channels.
 
-1. **Derived Layer Definition in Tech File:**
-   ```tcl
-   alias gate "poly AND diff"
-   alias nfet_gate "gate AND nsdm"
-   ```
-2. **Lab Application:**
-   * Use `gate` derived layer to enforce gate extension (`poly` overhang beyond `diff`) and gate spacing to active contacts.
+---
+
+### Part 1: Sub-Exercise 5a — Channel & Implant Derived Layers (`Exercise_5a`)
+
+1. **Derived Layer Concept:**
+   * Magic computes temporary derived layers on the fly to enforce complex DRC rules without storing redundant geometry data in GDSII.
+2. **Querying Diffusion & Polysilicon Layers (`cif see`):**
+   * Inspect basic diffusion and gate layers in tkcon:
+     ```tcl
+     cif see DIFF
+     cif see POLY
+     ```
+   * ![Exercise 5 Overview of Derived Layers](images/day6_l6_ex5_overview.png)
+   * ![CIF see DIFF and POLY](images/day6_l6_ex5a_diff_poly.png)
+
+3. **Source/Drain Implant Inspection (`NSDM` / `PSDM`):**
+   * Inspect N-diffusion (`NSDM`) and P-diffusion (`PSDM`) implant masks:
+     ```tcl
+     cif see NSDM
+     cif see PSDM
+     ```
+   * ![CIF see NSDM and PSDM](images/day6_l6_ex5a_nsdm_psdm.png)
+
+---
+
+### Part 2: Sub-Exercise 5b — Querying Transistor Mask Types (`Exercise_5b`)
+
+1. **Identifying Tile Types (`what` command):**
+   * Hover cursor over active transistor regions in `Exercise_5b` and execute `what` in tkcon:
+     ```text
+     Selected mask layers:
+         mvnmos  ( Topmost cell in the window )
+         mvndiff ( Topmost cell in the window )
+     ```
+   * ![Selected Mask Layer mvnmos](images/day6_l6_ex5b_mvnmos_what.png)
+   * ![Selected Mask Layer mvndiff](images/day6_l6_ex5b_mvndiff_what.png)
+
+2. **Special Implant & Voltage Layers (`LVTN` & `HVI`):**
+   * Clear feedback and query Low Threshold Voltage (`LVTN`) and High Voltage Isolation (`HVI`) layers:
+     ```tcl
+     feedback cl
+     cif see NSDM
+     cif see HVI
+     ```
+   * ![CIF see NSDM in Exercise 5b](images/day6_l6_ex5b_cif_nsdm.png)
+   * ![CIF see HVI in Exercise 5b](images/day6_l6_ex5b_cif_hvi.png)
+
+---
+
+### Part 3: Sub-Exercise 5c — Derived Layer Spacing Rules (`Exercise_5c`)
+
+1. **DRC Violation Diagnostic:**
+   * In `Exercise_5c`, adjacent channel/contact structures placed within close proximity trigger derived layer spacing violations between opposing implant masks (`NSDM` vs `PSDM`).
+   * ![Exercise 5c Derived Layer Spacing Violation](images/day6_l6_ex5c_derived_spacing_drc.png)
+
+2. **Fixing Derived Spacing Violations:**
+   * Adjust contact placement and space out alternating implant tiles to satisfy minimum derived spacing constraints.
+   * Executing `drc why` returns clean status for Exercise 5c.
+   * ![Exercise 5c Derived Layer Spacing Cleared](images/day6_l6_ex5c_derived_spacing_cleared.png)
 
 ---
 
